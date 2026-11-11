@@ -91,42 +91,64 @@
   .brand-text .t1{font-size:1.06rem;font-weight:700;letter-spacing:.01em}
   .brand-text .t2{font-size:.78rem;opacity:.9;line-height:1.45}
 
-  /* ---------- การ์ด "รายงานผล / ส่งออก-นำเข้าข้อมูล" มุมขวาบนของหน้าจอ ---------- */
-  .appbar .wrap.appbar-top{flex-wrap:wrap;row-gap:10px}
+  /* ---------- การ์ด "รายงานผล / ส่งออก-นำเข้าข้อมูล" มุมขวาบนของหน้าโปรแกรม ---------- */
+  .appbar .wrap.appbar-top{flex-wrap:wrap;row-gap:10px;column-gap:16px}
+  .appbar-brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 auto}
+
+  /* ชุดการ์ด: ป้ายหัวข้อ (นอกการ์ด) + การ์ดขาว */
+  .report-block{
+    flex:0 1 auto;margin-left:auto;align-self:center;
+    width:100%;max-width:420px;min-width:0;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .report-label{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:0 8px;font-size:15px;font-weight:600;color:#1f2937;line-height:1.3;
+  }
+  .report-label .rl-text{
+    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .report-label .rl-badge,.report-topbar .rt-badge{
+    font-size:.72rem;font-weight:600;color:#2f6faf;background:#e6f1fb;
+    border:0;border-radius:999px;padding:3px 10px;line-height:1.35;white-space:nowrap;flex:0 0 auto;
+  }
+  .report-label .rl-badge{margin-left:auto}
+
   .report-topbar{
-    display:flex;align-items:center;gap:14px;text-align:left;flex:0 1 auto;
-    margin-left:auto;align-self:center;
-    background:#fff;border:1px solid #e4e6eb;border-radius:18px;
-    padding:12px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04);
-    font-family:inherit;color:#0f2742;cursor:pointer;
+    display:flex;align-items:center;gap:20px;text-align:left;width:100%;
+    background:#fff;border:1px solid #e7eaf0;border-radius:16px;
+    padding:16px 20px;box-shadow:0 2px 8px rgba(16,24,40,.06);
+    font-family:inherit;color:#1f2937;cursor:pointer;
     transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-    max-width:460px;min-width:0;
+    min-width:0;
   }
-  .report-topbar:hover{transform:translateY(-1px);border-color:#c9c6ef;box-shadow:0 4px 14px rgba(91,79,214,.14)}
-  .report-topbar:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .report-topbar:hover{transform:translateY(-1px);border-color:#d3d9e6;box-shadow:0 6px 18px rgba(16,24,40,.1)}
+  .report-topbar:active{transform:translateY(0)}
+  .report-topbar:focus-visible{outline:3px solid #c7d7ff;outline-offset:2px}
   .report-topbar .rt-icon{
-    width:52px;height:52px;flex:0 0 auto;border-radius:14px;
-    display:grid;place-items:center;background:#e9e7fb;
+    width:62px;height:62px;flex:0 0 auto;border-radius:14px;
+    display:grid;place-items:center;background:#edeffb;
   }
-  .report-topbar .rt-icon svg{width:28px;height:28px;fill:#5b4fd6}
-  .report-topbar .rt-text{min-width:0;display:flex;flex-direction:column;gap:3px}
-  .report-topbar .rt-title{font-size:1.02rem;font-weight:700;color:#12263a;line-height:1.35}
-  .report-topbar .rt-sub{font-size:.82rem;font-weight:400;color:#6b7280;line-height:1.4}
-  .report-topbar .rt-badge{
-    align-self:flex-start;margin-top:2px;font-size:.75rem;font-weight:600;
-    color:#0b4f6c;background:#e6f4fa;border-radius:999px;padding:2px 10px;line-height:1.5;
+  .report-topbar .rt-icon svg{width:26px;height:26px;fill:#4f46e5;stroke:#4f46e5;stroke-width:1.75}
+  .report-topbar .rt-text{min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .report-topbar .rt-title{font-size:1.15rem;font-weight:700;color:#1f2937;line-height:1.4}
+  .report-topbar .rt-sub{font-size:.9rem;font-weight:400;color:#6b7280;line-height:1.45}
+  .report-topbar .rt-badge{margin-top:6px}
+
+  /* แท็บเล็ต/มือถือ: การ์ดเต็มความกว้าง อยู่บรรทัดแรกถัดจากชื่อหน่วยงาน */
+  @media(max-width:900px){
+    .report-block{max-width:none}
   }
   @media(max-width:767px){
-    .appbar{padding:12px 0}
-    .report-topbar{
-      width:100%;max-width:none;box-sizing:border-box;
-      margin-left:0;margin-top:2px;padding:10px 14px;gap:12px;
-    }
-    .report-topbar .rt-icon{width:44px;height:44px;border-radius:12px}
-    .report-topbar .rt-icon svg{width:24px;height:24px}
-    .report-topbar .rt-title{font-size:.95rem}
-    .report-topbar .rt-sub{font-size:.76rem}
-    .report-topbar .rt-badge{font-size:.7rem}
+    .appbar-brand{flex:1 1 100%}
+    .report-block{margin-left:0;margin-top:2px}
+    .report-label{font-size:.86rem;padding:0 4px}
+    .report-topbar{padding:14px 16px;gap:14px}
+    .report-topbar .rt-icon{width:52px;height:52px;border-radius:13px}
+    .report-topbar .rt-icon svg{width:23px;height:23px}
+    .report-topbar .rt-title{font-size:1rem}
+    .report-topbar .rt-sub{font-size:.8rem}
+    .report-topbar .rt-badge{font-size:.69rem}
   }
 
   main{padding:20px 0 64px}
@@ -774,10 +796,12 @@
   }
   .sign-box{border-color:#d8e6ec;background:#fff;box-shadow:inset 0 1px 2px rgba(15,43,51,.03)}
 
-  /* ---------- การ์ดรายงานมุมขวาบน: ให้เข้าชุดกับธีม ---------- */
-  .report-topbar{border-radius:16px;border-color:#dfe6ec;box-shadow:0 2px 10px rgba(4,38,50,.12)}
-  .report-topbar:hover{border-color:#bcd9e6;box-shadow:0 8px 22px rgba(4,38,50,.22)}
-  .report-topbar .rt-badge{background:#e9f4f8;color:#0b4f6c;border:1px solid #d3e8f0}
+  /* ---------- การ์ดรายงานมุมขวาบน: ให้เข้าชุดกับธีม ไม่ใช้เงาหนัก ---------- */
+  .report-topbar{border-radius:16px;border-color:#e7eaf0;box-shadow:0 2px 8px rgba(16,24,40,.06)}
+  .report-topbar:hover{border-color:#d3d9e6;box-shadow:0 6px 18px rgba(16,24,40,.1)}
+  .report-topbar .rt-badge,.report-label .rl-badge{background:#e6f1fb;color:#2f6faf;border:0}
+  .report-topbar .rt-icon{background:#edeffb}
+  .report-topbar .rt-icon svg{fill:#4f46e5;stroke:#4f46e5}
 
   /* ---------- toast / confirm ---------- */
   .toast{
@@ -805,6 +829,7 @@
     .panel-body{padding:14px 14px 28px}
     .actions{justify-content:stretch}
     .actions .btn{flex:1 1 auto}
+    .report-label{font-size:.86rem}
   }
   @media(max-width:380px){
     .module .icon{width:44px;height:44px}
@@ -813,30 +838,39 @@
   @media print{
     body{background:#fff}
     .appbar{box-shadow:none}
+    .report-block{display:none!important}
   }
 </style>
 </head>
 <body>
 <header class="appbar">
   <div class="wrap appbar-top">
-    <div class="brand-badge" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M2 12c2.2-3.4 5.1-5 8.7-5 3.1 0 5.7 1.1 8.3 3.2l1.9-1.6c.5-.4 1.1 0 1 .6l-.5 3.2.5 3.2c.1.6-.5 1-.98.6l-1.9-1.6C16.4 15.9 13.8 17 10.7 17 7.1 17 4.2 15.4 2 12Zm4.6-.9a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2Z"/></svg>
-    </div>
-    <div class="brand-text">
-      <div class="t1">ระบบบันทึกข้อมูลการเลี้ยงกุ้ง (Biosecurity)</div>
-      <div class="t2">ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา</div>
+    <div class="appbar-brand">
+      <div class="brand-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M2 12c2.2-3.4 5.1-5 8.7-5 3.1 0 5.7 1.1 8.3 3.2l1.9-1.6c.5-.4 1.1 0 1 .6l-.5 3.2.5 3.2c.1.6-.5 1-.98.6l-1.9-1.6C16.4 15.9 13.8 17 10.7 17 7.1 17 4.2 15.4 2 12Zm4.6-.9a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2Z"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="t1">ระบบบันทึกข้อมูลการเลี้ยงกุ้ง (Biosecurity)</div>
+        <div class="t2">ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา</div>
+      </div>
     </div>
 
-    <button class="report-topbar" data-open="report" type="button" aria-label="รายงานผล / ส่งออก-นำเข้าข้อมูล">
-      <span class="rt-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M5 3h9l5 5v13H5V3Zm2 2v14h10V9h-4V5H7Zm2 7h6v2H9v-2Zm0 4h6v2H9v-2Zm0-8h2v2H9V8Z"/><path d="M17.6 14.2h2.8v2.6h-2.8v2.4l-3.4-3.7 3.4-3.7v2.4Z"/></svg>
-      </span>
-      <span class="rt-text">
-        <span class="rt-title">รายงานผล / ส่งออก-นำเข้าข้อมูล</span>
-        <span class="rt-sub">สร้างไฟล์ Word, PDF, Excel, PowerPoint และ JSON (นำเข้า-ส่งออกข้อมูลสำรอง)</span>
-        <span class="rt-badge">5 รูปแบบไฟล์</span>
-      </span>
-    </button>
+    <div class="report-block">
+      <div class="report-label">
+        <span class="rl-text">รายงานผลและการส่งออกข้อมูล</span>
+        <span class="rl-badge">5 รูปแบบไฟล์</span>
+      </div>
+      <button class="report-topbar" data-open="report" type="button" aria-label="รายงานผล / ส่งออก-นำเข้าข้อมูล">
+        <span class="rt-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 3h7.5L19 8.5V21H6V3Z" stroke-linejoin="round"/><path d="M13.5 3v5.5H19" stroke-linejoin="round"/><path d="M9.5 13.5h7" stroke-linecap="round"/><path d="M9.5 17h4.5" stroke-linecap="round"/></svg>
+        </span>
+        <span class="rt-text">
+          <span class="rt-title">รายงานผล / ส่งออก-นำเข้าข้อมูล</span>
+          <span class="rt-sub">สร้างไฟล์ Word, PDF, Excel, PowerPoint และ JSON (นำเข้า-ส่งออกข้อมูลสำรอง)</span>
+          <span class="rt-badge">5 รูปแบบไฟล์</span>
+        </span>
+      </button>
+    </div>
   </div>
 </header>
 
