@@ -1208,6 +1208,7 @@ window.BioReport = (function () {
       farm: data.meta.farm,
       by: data.meta.by,
       range: { from: data.meta.from || null, to: data.meta.to || null },
+      staff: Array.isArray(opts && opts.staff) ? opts.staff.slice() : [],
       modules: {},
       summary: []
     };
@@ -1229,7 +1230,10 @@ window.BioReport = (function () {
   /* ตรวจформатไฟล์ JSON แล้วแปลงเป็น { module: [rows] } */
   function parseJsonFile(text) {
     var parsed = JSON.parse(text);
-    var out = { modules: {}, total: 0, farm: "", exportedAtTh: "", version: null, warnings: [] };
+    var out = { modules: {}, total: 0, farm: "", exportedAtTh: "", version: null, warnings: [], staff: [] };
+    if (parsed && Array.isArray(parsed.staff)) {
+      out.staff = parsed.staff.filter(function (s) { return typeof s === "string" && s.trim(); });
+    }
     var known = M.map(function (m) { return m.key; });
 
     if (parsed && parsed.modules && typeof parsed.modules === "object") {

@@ -11,8 +11,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Biosecurity กุ้ง">
-<meta name="theme-color" content="#075a75" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#075a75" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230a7ea4'/%3E%3Cpath d='M3 12c2-3 4.6-4.5 7.9-4.5 2.8 0 5.2 1 7.5 2.9l1.7-1.5c.5-.4 1 0 .9.6l-.4 2.9.4 2.9c.1.6-.4 1-.9.6l-1.7-1.5C15.7 15 13.3 16 10.5 16 7.2 16 4.6 14.5 2.6 11.5Z' fill='%23fff'/%3E%3C/svg%3E">
 <title>ระบบบันทึกข้อมูลฟาร์มกุ้ง Biosecurity | ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา</title>
 <script>
@@ -840,6 +838,37 @@
     .appbar{box-shadow:none}
     .report-block{display:none!important}
   }
+
+  /* ---------- โหมดแก้ไขรายการย้อนหลัง ---------- */
+  .mini.edit{color:var(--accent-dark);border-color:#bfdde9}
+  .mini.edit:hover{background:var(--accent-soft)}
+  form.is-editing{border-color:#f0c36d;box-shadow:0 0 0 3px rgba(240,195,109,.28), var(--shadow)}
+  .edit-banner{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:#fff7e6;border:1px solid #f3d9a4;color:#7a4b00;
+    border-radius:10px;padding:10px 12px;margin:0 0 14px;font-size:.88rem;line-height:1.45;
+  }
+  .edit-banner[hidden]{display:none}
+  .edit-banner .mini{margin-left:auto}
+  .mini.edit.on{background:#fff1d6;border-color:#f0c36d;color:#7a4b00}
+  tbody tr.row-editing,tbody tr.row-editing:hover{background:#fff7e6}
+
+  /* ช่องที่ตั้ง hidden ต้องซ่อนจริง แม้คลาสจะกำหนด display ไว้ (เช่น .field{display:flex}) */
+  [hidden]{display:none!important}
+
+  /* ---------- ปุ่มบนหัวหน้า + แผงรายชื่อผู้บันทึก ---------- */
+  .head-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .btn-sm{min-height:38px;padding:7px 14px;font-size:.86rem;border-radius:999px}
+  .staff-add{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+  .staff-add .field{flex:1 1 260px}
+  .staff-add .btn{margin-top:26px}
+  .staff-list{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:8px}
+  .staff-list li{display:flex;align-items:center;gap:8px}
+  .staff-list .no{flex:0 0 26px;text-align:right;color:var(--muted);font-weight:700;font-size:.85rem}
+  .staff-list input{flex:1 1 auto;min-width:0}
+  .staff-list .mini{flex:0 0 auto;min-height:40px;min-width:40px}
+  @supports (-webkit-touch-callout: none){ .staff-list input{font-size:16px} }
+  @media(max-width:480px){ .staff-add .btn{margin-top:0;width:100%} }
 </style>
 </head>
 <body>
@@ -881,7 +910,13 @@
       <h1>แดชบอร์ดบันทึกข้อมูลฟาร์ม</h1>
       <div class="sub">เลือกไอคอนที่ต้องการเพื่อเปิดแบบฟอร์มบันทึกและดูตารางย้อนหลัง</div>
     </div>
-    <div class="today-chip" id="todayChip"></div>
+    <div class="head-tools">
+      <button class="btn btn-ghost btn-sm" type="button" data-open="staff">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 8c3.3 0 6 1.6 6 4v2H3v-2c0-2.4 2.7-4 6-4Zm0 2c-2.2 0-3.7.9-4 2h8c-.3-1.1-1.8-2-4-2Zm8-4h2v2h2v2h-2v2h-2v-2h-2v-2h2v-2Z"/></svg>
+        รายชื่อผู้บันทึก
+      </button>
+      <div class="today-chip" id="todayChip"></div>
+    </div>
   </div>
 
   <section class="stats" aria-label="สรุปข้อมูลวันนี้">
@@ -1069,16 +1104,7 @@
       <h2 id="accessTitle">ควบคุมการเข้าออกบุคลากรและผู้เยี่ยมชม</h2>
       <div class="s">บันทึกผู้เข้าฟาร์มตามระบบ Biosecurity</div>
     </div>
-    <div class="list-filter">
-      <label for="fltAccess">ดูข้อมูล</label>
-      <select id="fltAccess" data-filter="access">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltAccess">ดูข้อมูล</label><select id="fltAccess" data-filter="access"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1129,29 +1155,7 @@
           <textarea id="a_note" name="note" placeholder="เช่น ผ่านการฆ่าเชื้อก่อนเข้าฟาร์ม / รถเข้าพื้นที่"></textarea>
         </div>
       </div>
-      <fieldset class="rec" id="rec-access">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="a_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="a_rec" class="rec-select"></select>
-            <div class="err" data-err="a_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="a_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="a_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="a_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-access"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="a_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1193,6 +1197,7 @@
       <h2 id="feedTitle">บันทึกการให้อาหารและอุณหภูมิน้ำ</h2>
       <div class="s">ปริมาณอาหาร 4 ช่วงเวลา และอุณหภูมิน้ำ 2 ช่วงเวลา</div>
     </div>
+    <div class="list-filter"><label for="fltFeed">ดูข้อมูล</label><select id="fltFeed" data-filter="feed"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1272,29 +1277,7 @@
           <textarea id="f_note" name="note" placeholder="เช่น กุ้งกินอาหารดี / ลดอาหารช่วงฝนตก"></textarea>
         </div>
       </div>
-      <fieldset class="rec" id="rec-feed">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="f_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="f_rec" class="rec-select"></select>
-            <div class="err" data-err="f_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="f_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="f_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="f_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-feed"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="f_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1339,16 +1322,7 @@
       <h2 id="healthTitle">บันทึกสุขภาพสัตว์น้ำ</h2>
       <div class="s">ลำไส้ ขาว่ายน้ำ และตัวตาย 2 ช่วงเวลา</div>
     </div>
-    <div class="list-filter">
-      <label for="fltHealth">ดูข้อมูล</label>
-      <select id="fltHealth" data-filter="health">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltHealth">ดูข้อมูล</label><select id="fltHealth" data-filter="health"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1449,29 +1423,7 @@
           <textarea id="h_note" name="note" placeholder="เช่น พบกุ้งอ่อนแอหลังฝนตก / เก็บตัวอย่างส่งตรวจ"></textarea>
         </div>
       </div>
-      <fieldset class="rec" id="rec-health">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="h_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="h_rec" class="rec-select"></select>
-            <div class="err" data-err="h_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="h_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="h_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="h_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-health"></fieldset>
 
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="h_reset">ล้างฟอร์ม</button>
@@ -1517,16 +1469,7 @@
       <h2 id="waterTitle">บันทึกคุณภาพน้ำ</h2>
       <div class="s">แอมโมเนีย ไนไตรท์ DO pH แม็กนีเซียม แคลเซียม ความเค็ม</div>
     </div>
-    <div class="list-filter">
-      <label for="fltWater">ดูข้อมูล</label>
-      <select id="fltWater" data-filter="water">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltWater">ดูข้อมูล</label><select id="fltWater" data-filter="water"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1593,29 +1536,7 @@
           <textarea id="w_note" name="note" placeholder="เช่น ค่าไนไตรท์สูง เปลี่ยนถ่ายน้ำ 20%"></textarea>
         </div>
       </div>
-      <fieldset class="rec" id="rec-water">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="w_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="w_rec" class="rec-select"></select>
-            <div class="err" data-err="w_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="w_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="w_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="w_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-water"></fieldset>
 
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="w_reset">ล้างฟอร์ม</button>
@@ -1660,16 +1581,7 @@
       <h2 id="matwaterTitle">วัสดุที่ใช้ในการเตรียมน้ำ</h2>
       <div class="s">ปูน / คลอรีน / ไอโอดีน และสารเคมีอื่น ๆ พร้อมเลขทะเบียนทางการค้า</div>
     </div>
-    <div class="list-filter">
-      <label for="fltMatWater">ดูข้อมูล</label>
-      <select id="fltMatWater" data-filter="matwater">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltMatWater">ดูข้อมูล</label><select id="fltMatWater" data-filter="matwater"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1718,29 +1630,7 @@
           <textarea id="mw_note" placeholder="เช่น หว่านปูนก่อนใส่คลอรีน 1 วัน"></textarea>
         </div>
       </div>
-      <fieldset class="rec" id="rec-matwater">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="mw_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="mw_rec" class="rec-select"></select>
-            <div class="err" data-err="mw_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="mw_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="mw_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="mw_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-matwater"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="mw_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1783,16 +1673,7 @@
       <h2 id="footbathTitle">วัสดุที่ใช้ในการเตรียมอ่างย่ำเท้า</h2>
       <div class="s">ด่างทับทิม / คลอรีน / ไอโอดีน พร้อมขนาดอ่าง</div>
     </div>
-    <div class="list-filter">
-      <label for="fltFootbath">ดูข้อมูล</label>
-      <select id="fltFootbath" data-filter="footbath">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltFootbath">ดูข้อมูล</label><select id="fltFootbath" data-filter="footbath"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1837,29 +1718,7 @@
           <input type="text" id="fb_note" placeholder="เช่น เปลี่ยนน้ำยาใหม่ทุก 2 วัน">
         </div>
       </div>
-      <fieldset class="rec" id="rec-footbath">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="fb_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="fb_rec" class="rec-select"></select>
-            <div class="err" data-err="fb_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="fb_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="fb_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="fb_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-footbath"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="fb_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1902,16 +1761,7 @@
       <h2 id="equipmentTitle">วัสดุที่ใช้ในการล้างอุปกรณ์</h2>
       <div class="s">สารเคมีล้างเครื่องมือ/อุปกรณ์ พร้อมขนาดบ่อ</div>
     </div>
-    <div class="list-filter">
-      <label for="fltEquipment">ดูข้อมูล</label>
-      <select id="fltEquipment" data-filter="equipment">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltEquipment">ดูข้อมูล</label><select id="fltEquipment" data-filter="equipment"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -1954,29 +1804,7 @@
           <input type="text" id="eq_note" placeholder="เช่น แช่ 30 นาทีแล้วล้างน้ำสะอาด">
         </div>
       </div>
-      <fieldset class="rec" id="rec-equipment">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="eq_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="eq_rec" class="rec-select"></select>
-            <div class="err" data-err="eq_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="eq_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="eq_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="eq_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-equipment"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="eq_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -2018,16 +1846,7 @@
       <h2 id="watersourceTitle">บันทึกแหล่งน้ำใช้</h2>
       <div class="s">แหล่งน้ำ ปริมาณที่ใช้ การบำบัด และผลตรวจคุณภาพเบื้องต้น</div>
     </div>
-    <div class="list-filter">
-      <label for="fltWaterSource">ดูข้อมูล</label>
-      <select id="fltWaterSource" data-filter="watersource">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltWaterSource">ดูข้อมูล</label><select id="fltWaterSource" data-filter="watersource"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -2081,29 +1900,7 @@
           <textarea id="ws_note" placeholder="เช่น น้ำจากคลองผ่านบ่อพัก 3 วันก่อนใช้"></textarea>
         </div>
       </div>
-      <fieldset class="rec" id="rec-watersource">
-        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
-        <div class="rec-grid">
-          <div class="field">
-            <label for="ws_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
-            <select id="ws_rec" class="rec-select"></select>
-            <div class="err" data-err="ws_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
-          </div>
-          <div class="field field-other" hidden>
-            <label for="ws_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
-            <input type="text" id="ws_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
-            <div class="err" data-err="ws_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
-          </div>
-          <div class="field">
-            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
-            <div class="sign-box" aria-hidden="true">
-              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
-              <div class="sign-line"></div>
-              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <fieldset class="rec" id="rec-watersource"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="ws_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -2123,7 +1920,7 @@
           <tr>
             <th>วันที่</th><th>แหล่งน้ำ</th><th>บ่อที่ใช้</th>
             <th class="num">ปริมาณ (ตัน)</th><th class="num">ความเค็ม (ppt)</th><th class="num">pH</th>
-            <th>การบำบัด</th><th>ผลตรวจ</th><th>หมายเหตุ</th><th></th>
+            <th>การบำบัด</th><th>ผลตรวจ</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyWaterSource"></tbody>
@@ -2146,16 +1943,7 @@
       <h2 id="moveTitle">บันทึกการเคลื่อนย้ายสัตว์น้ำ</h2>
       <div class="s">ต้นทาง-ปลายทาง จำนวน/น้ำหนัก วิธีขนย้าย และเอกสารกำกับ</div>
     </div>
-    <div class="list-filter">
-      <label for="fltMove">ดูข้อมูล</label>
-      <select id="fltMove" data-filter="move">
-        <option value="5">5 วันล่าสุด</option>
-        <option value="30" selected>30 วันล่าสุด</option>
-        <option value="90">90 วันล่าสุด</option>
-        <option value="month">เดือนนี้</option>
-        <option value="all">ทั้งหมด</option>
-      </select>
-    </div>
+    <div class="list-filter"><label for="fltMove">ดูข้อมูล</label><select id="fltMove" data-filter="move"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -2220,6 +2008,7 @@
           <input type="text" id="mv_note" placeholder="เช่น ตรวจโรคก่อนย้าย 7 วัน">
         </div>
       </div>
+      <fieldset class="rec" id="rec-move"></fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="mv_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -2239,7 +2028,7 @@
           <tr>
             <th>วันที่</th><th>ประเภท</th><th>ต้นทาง</th><th>ปลายทาง</th><th>ชนิดสัตว์น้ำ</th>
             <th class="num">จำนวน (ตัว)</th><th class="num">น้ำหนัก (กก.)</th>
-            <th>วิธีขนย้าย</th><th>ผู้ส่ง</th><th>ผู้รับ</th><th>เอกสาร</th><th>หมายเหตุ</th><th></th>
+            <th>วิธีขนย้าย</th><th>ผู้ส่ง</th><th>ผู้รับ</th><th>เอกสาร</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyMove"></tbody>
@@ -2279,7 +2068,7 @@
         </div>
         <div class="field">
           <label for="rp_farm">ชื่อฟาร์ม / หน่วยงาน</label>
-          <input type="text" id="rp_farm" value="ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่ง">
+          <input type="text" id="rp_farm" value="ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา">
         </div>
         <div class="field">
           <label for="rp_by">ผู้จัดทำรายงาน</label>
@@ -2411,6 +2200,53 @@
   </div>
 </section>
 
+<!-- ============ PANEL: STAFF (รายชื่อผู้บันทึก) ============ -->
+<section class="panel" id="panel-staff" aria-labelledby="staffTitle">
+  <div class="panel-head">
+    <span class="icon-sm" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M9 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 10c3.3 0 6 1.6 6 4v2H3v-2c0-2.4 2.7-4 6-4Zm8-4h2v2h2v2h-2v2h-2v-2h-2v-2h2v-2Z"/></svg>
+    </span>
+    <div class="titles">
+      <h2 id="staffTitle">รายชื่อผู้บันทึกข้อมูล</h2>
+      <div class="s">เพิ่ม แก้ไข เรียงลำดับ หรือลบรายชื่อที่ใช้เลือกในทุกแบบฟอร์ม</div>
+    </div>
+    <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
+  </div>
+  <div class="panel-body">
+    <form class="card" id="formStaff" novalidate>
+      <h3><span class="dot"></span>เพิ่มรายชื่อ</h3>
+      <div class="staff-add">
+        <div class="field">
+          <label for="st_name">ชื่อ - นามสกุล</label>
+          <input type="text" id="st_name" placeholder="เช่น นายสมชาย ใจดี" autocomplete="off">
+          <div class="err" data-err="st_name">กรุณาระบุชื่อ-นามสกุล</div>
+        </div>
+        <button class="btn btn-primary" type="submit">เพิ่มรายชื่อ</button>
+      </div>
+    </form>
+
+    <div class="card">
+      <div class="list-head">
+        <h3 style="margin:0">รายชื่อปัจจุบัน</h3>
+        <span class="count-badge" id="staffCount">0 คน</span>
+      </div>
+      <ol class="staff-list" id="staffList"></ol>
+      <div class="empty" id="emptyStaff" hidden>
+        <strong>ยังไม่มีรายชื่อ</strong>
+        เพิ่มรายชื่อด้านบน หรือเลือก "อื่น ๆ (ระบุชื่อ)" ในแบบฟอร์ม
+      </div>
+      <div class="note-box">
+        <strong>หมายเหตุ:</strong> แก้ชื่อในช่องได้เลย ระบบจะบันทึกเมื่อออกจากช่อง
+        การแก้ไขหรือลบรายชื่อจะไม่เปลี่ยนชื่อผู้บันทึกในรายการที่บันทึกไว้แล้ว
+        และรายชื่อนี้จะส่งออกไปพร้อมไฟล์ JSON ด้วย ใช้ย้ายไปเครื่องอื่นได้
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button" id="btnStaffDefault">คืนค่ารายชื่อเริ่มต้น</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <datalist id="chemListWater">
   <option value="ปูนขาว"></option>
   <option value="ปูนโดโลไมต์"></option>
@@ -2449,1291 +2285,6 @@
 </datalist>
 
 <script src="js/report.js"></script>
-<script>
-(function () {
-  "use strict";
-
-  var KEY = "biosecurity-shrimp-v1";
-  var MODULES = ["access", "feed", "health", "water", "matwater", "footbath", "equipment", "watersource", "move"];
-
-  /* ---------------- storage (รองรับทุกเบราว์เซอร์/ทุกแพลตฟอร์ม) ---------------- */
-  var store = (function () {
-    var memory = {};                       // fallback: โหมดส่วนตัวของ iOS/Safari หรือเบราว์เซอร์ที่บล็อก storage
-    var lib = null;
-    try {
-      lib = window.localStorage;
-      var probe = "__bio_probe__";
-      lib.setItem(probe, "1");
-      lib.removeItem(probe);
-    } catch (e) {
-      lib = null;
-    }
-    return {
-      available: !!lib,
-      get: function (k) {
-        try { return lib ? lib.getItem(k) : (memory[k] || null); }
-        catch (e) { return memory[k] || null; }
-      },
-      set: function (k, v) {
-        if (lib) {
-          try { lib.setItem(k, v); return true; }
-          catch (e) {
-            // พื้นที่เต็ม: ลองลบเฉพาะรายการชั่วคราวก่อน 1 ครั้ง
-            try { lib.removeItem("__bio_tmp__"); lib.setItem(k, v); return true; } catch (e2) {}
-            memory[k] = v;
-            return false;
-          }
-        }
-        memory[k] = v;
-        return "memory";
-      }
-    };
-  })();
-
-  function loadAll() {
-    var data = { access: [], feed: [], health: [], water: [],
-                 matwater: [], footbath: [], equipment: [], watersource: [], move: [] };
-    try {
-      var raw = store.get(KEY);
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        MODULES.forEach(function (m) {
-          if (Array.isArray(parsed[m])) data[m] = parsed[m];
-        });
-      }
-    } catch (e) {
-      console.warn("อ่านข้อมูลไม่สำเร็จ", e);
-      toast("อ่านข้อมูลที่บันทึกไว้ไม่สำเร็จ", "err");
-    }
-    return data;
-  }
-  function saveAll(data) {
-    var ok = store.set(KEY, JSON.stringify(data));
-    if (ok === false) {
-      toast("บันทึกข้อมูลไม่สำเร็จ (พื้นที่เก็บข้อมูลเต็ม) กรุณาส่งออก JSON เก็บไว้ก่อน", "err");
-      return false;
-    }
-    if (ok === "memory") {
-      if (!saveAll.warned) {
-        saveAll.warned = true;
-        toast("เบราว์เซอร์นี้ปิดการเก็บข้อมูลถาวร ข้อมูลจะหายเมื่อปิดหน้า กรุณาใช้โหมดปกติหรือส่งออก JSON", "err");
-      }
-    }
-    return true;
-  }
-  var DB = loadAll();
-
-  /* ---------------- helpers ---------------- */
-  function $(sel, root) { return (root || document).querySelector(sel); }
-  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-  function todayISO() {
-    var d = new Date();
-    var m = String(d.getMonth() + 1).padStart(2, "0");
-    var day = String(d.getDate()).padStart(2, "0");
-    return d.getFullYear() + "-" + m + "-" + day;
-  }
-  function nowHM() {
-    var d = new Date();
-    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
-  }
-  var TH_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function thDate(iso) {
-    if (!iso) return "-";
-    var p = String(iso).split("-");
-    if (p.length !== 3) return String(iso);
-    var y = parseInt(p[0], 10) + 543;
-    var mo = TH_MONTHS[parseInt(p[1], 10) - 1] || p[1];
-    return String(parseInt(p[2], 10)) + " " + mo + " " + String(y).slice(-2);
-  }
-  function longThaiToday() {
-    var d = new Date();
-    return "วันนี้ " + d.getDate() + " " + TH_MONTHS[d.getMonth()] + " " + (d.getFullYear() + 543);
-  }
-  function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
-  function fmt2(v) { return num(v).toFixed(2); }
-  function fmtOr(v, dec) { return v === "" || v === null || v === undefined ? "-" : num(v).toFixed(dec); }
-  function td(text, cls) {
-    var cell = document.createElement("td");
-    if (cls) cell.className = cls;
-    if (text === null || text === undefined || text === "") { cell.textContent = "-"; }
-    else cell.textContent = String(text);
-    return cell;
-  }
-
-  /* ---------------- toast ---------------- */
-  var toastEl = $("#toast"), toastTimer = null;
-  function toast(msg, kind) {
-    toastEl.textContent = msg;
-    toastEl.className = "toast show" + (kind ? " " + kind : "");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.className = "toast"; }, 2600);
-  }
-
-  /* ---------------- confirm dialog ---------------- */
-  var confirmEl = $("#confirmBox"), confirmResolve = null;
-  function askConfirm(text) {
-    $("#confirmText").textContent = text;
-    confirmEl.classList.add("open");
-    $("#confirmOk").focus();
-    return new Promise(function (resolve) { confirmResolve = resolve; });
-  }
-  function closeConfirm(result) {
-    confirmEl.classList.remove("open");
-    if (confirmResolve) { confirmResolve(result); confirmResolve = null; }
-  }
-  $("#confirmCancel").addEventListener("click", function () { closeConfirm(false); });
-  $("#confirmOk").addEventListener("click", function () { closeConfirm(true); });
-  confirmEl.addEventListener("click", function (e) { if (e.target === confirmEl) closeConfirm(false); });
-
-  /* ---------------- panels ---------------- */
-  var overlay = $("#overlay");
-  var openPanelId = null;
-
-  function openPanel(name) {
-    closeAllPanels();
-    var p = $("#panel-" + name);
-    if (!p) return;
-    p.classList.add("open");
-    overlay.classList.add("open");
-    openPanelId = name;
-    document.body.style.overflow = "hidden";
-    p.scrollTop = 0;
-    var first = p.querySelector("input, select, textarea, button");
-    if (first) first.focus();
-  }
-  function closeAllPanels() {
-    $all(".panel.open").forEach(function (p) { p.classList.remove("open"); });
-    overlay.classList.remove("open");
-    document.body.style.overflow = "";
-    openPanelId = null;
-  }
-  $all("[data-open]").forEach(function (btn) {
-    btn.addEventListener("click", function () { openPanel(btn.getAttribute("data-open")); });
-  });
-  $all("[data-close]").forEach(function (btn) {
-    btn.addEventListener("click", function () { closeAllPanels(); });
-  });
-  overlay.addEventListener("click", closeAllPanels);
-  document.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape") return;
-    if (confirmEl.classList.contains("open")) { closeConfirm(false); return; }
-    if (openPanelId) closeAllPanels();
-  });
-
-  /* ---------------- validation ---------------- */
-  function clearErr(id) {
-    var box = document.querySelector('.err[data-err="' + id + '"]');
-    if (box) box.classList.remove("show");
-    var el = document.getElementById(id);
-    if (el) el.classList.remove("bad");
-    if (el && el._dtPicker) {
-      el._dtPicker.classList.remove("bad");
-      try { el._dtPicker.removeAttribute("title"); } catch (e2) {}
-    }
-  }
-  function setErr(id, msg) {
-    var box = document.querySelector('.err[data-err="' + id + '"]');
-    if (box) {
-      if (msg) box.textContent = msg;
-      box.classList.add("show");
-    }
-    var el = document.getElementById(id);
-    if (el) el.classList.add("bad");
-    // ช่องวันที่ที่ถูกแปลงเป็นช่องข้อความ: แสดงข้อความสีแดงแทนกล่อง error
-    if (el && el._dtPicker && msg) {
-      el._dtPicker.classList.add("bad");
-      try { el._dtPicker.setAttribute("title", msg); } catch (e2) {}
-    }
-  }
-  function reqText(id, label) {
-    var v = (document.getElementById(id).value || "").trim();
-    if (!v) { setErr(id, "กรุณาระบุ" + label); return null; }
-    clearErr(id);
-    return v;
-  }
-  function optNum(id, opts) {
-    opts = opts || {};
-    var el = document.getElementById(id);
-    var raw = (el.value || "").trim();
-    if (raw === "") { clearErr(id); return ""; }
-    var n = parseFloat(raw);
-    if (!isFinite(n) || n < 0) { setErr(id, "กรอกตัวเลขไม่ติดลบ"); return undefined; }
-    if (opts.max !== undefined && n > opts.max) {
-      setErr(id, opts.msgMax || ("ค่าต้องไม่เกิน " + opts.max));
-      return undefined;
-    }
-    clearErr(id);
-    return n;
-  }
-
-  function actionCell(module, id) {
-    var cell = document.createElement("td");
-    var box = document.createElement("div");
-    box.className = "row-actions";
-    var del = document.createElement("button");
-    del.type = "button";
-    del.className = "mini del";
-    del.textContent = "ลบ";
-    del.setAttribute("aria-label", "ลบรายการนี้");
-    del.addEventListener("click", function () { removeRow(module, id); });
-    box.appendChild(del);
-    cell.appendChild(box);
-    return cell;
-  }
-
-  function removeRow(module, id) {
-    askConfirm("ต้องการลบรายการบันทึกนี้หรือไม่? ข้อมูลที่ลบแล้วจะกู้คืนไม่ได้").then(function (ok) {
-      if (!ok) return;
-      DB[module] = DB[module].filter(function (r) { return r.id !== id; });
-      if (saveAll(DB)) { renderAll(); toast("ลบรายการแล้ว", "ok"); }
-    });
-  }
-
-  function setWrap(mode, countEl, badgeEl, moduleKey) {
-    var empty = $("#empty" + moduleKey);
-    var rows = $("#tbody" + moduleKey);
-    var wrap = rows.closest(".table-wrap");
-    var has = countEl > 0;
-    if (empty) empty.hidden = has;
-    if (wrap) wrap.style.display = has ? "" : "none";
-    if (badgeEl) badgeEl.textContent = countEl + " รายการ";
-  }
-
-  /* ---------------- render: access ---------------- */
-  function renderAccess() {
-    var tb = $("#tbodyAccess");
-    tb.textContent = "";
-    var rows = DB.access.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return (b.timeIn || "").localeCompare(a.timeIn || "");
-    });
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.timeIn));
-      tr.appendChild(td(r.timeOut));
-      tr.appendChild(td(r.fullName));
-      tr.appendChild(td(r.organization));
-      tr.appendChild(td(r.objective));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("access", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#accessCount"), "Access");
-    $("#cntAccess").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: feed ---------------- */
-  function feedTotal(r) {
-    return num(r.feed0830) + num(r.feed1200) + num(r.feed1600) + num(r.feed2000);
-  }
-  function renderFeed() {
-    var tb = $("#tbodyFeed");
-    tb.textContent = "";
-    var rows = DB.feed.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return String(a.pond).localeCompare(String(b.pond));
-    });
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.pond));
-      tr.appendChild(td(r.age === "" ? "" : num(r.age), "num"));
-      tr.appendChild(td(fmt2(r.feed0830), "num"));
-      tr.appendChild(td(fmt2(r.feed1200), "num"));
-      tr.appendChild(td(fmt2(r.feed1600), "num"));
-      tr.appendChild(td(fmt2(r.feed2000), "num"));
-      tr.appendChild(td(fmt2(feedTotal(r)), "num"));
-      tr.appendChild(td(fmtOr(r.temp0830, 1), "num"));
-      tr.appendChild(td(fmtOr(r.temp1500, 1), "num"));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("feed", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#feedCount"), "Feed");
-    $("#cntFeed").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: health ---------------- */
-  function renderHealth() {
-    var tb = $("#tbodyHealth");
-    tb.textContent = "";
-    var rows = DB.health.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return String(a.pond).localeCompare(String(b.pond));
-    });
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.pond));
-      tr.appendChild(td(r.gut0830));
-      tr.appendChild(td(r.white0830));
-      tr.appendChild(td(r.dead0830 === "" ? "" : num(r.dead0830), "num"));
-      tr.appendChild(td(r.gut1600));
-      tr.appendChild(td(r.white1600));
-      tr.appendChild(td(r.dead1600 === "" ? "" : num(r.dead1600), "num"));
-      tr.appendChild(td(num(r.dead0830) + num(r.dead1600), "num"));
-      tr.appendChild(td(r.feedManagement));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("health", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#healthCount"), "Health");
-    $("#cntHealth").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: water ---------------- */
-  function renderWater() {
-    var tb = $("#tbodyWater");
-    tb.textContent = "";
-    var rows = DB.water.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return String(a.pond).localeCompare(String(b.pond));
-    });
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.time));
-      tr.appendChild(td(r.pond));
-      tr.appendChild(td(fmtOr(r.ammonia, 3), "num"));
-      tr.appendChild(td(fmtOr(r.nitrite, 3), "num"));
-      tr.appendChild(td(fmtOr(r.dox, 2), "num"));
-      tr.appendChild(td(fmtOr(r.ph, 2), "num"));
-      tr.appendChild(td(fmtOr(r.magnesium, 2), "num"));
-      tr.appendChild(td(fmtOr(r.calcium, 2), "num"));
-      tr.appendChild(td(fmtOr(r.salinity, 1), "num"));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("water", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#waterCount"), "Water");
-    $("#cntWater").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: material for water preparation ---------------- */
-  function sortByDate(rows, keyB) {
-    return rows.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return String(a[keyB] || "").localeCompare(String(b[keyB] || ""));
-    });
-  }
-  function renderMatWater() {
-    var tb = $("#tbodyMatWater");
-    tb.textContent = "";
-    var rows = sortByDate(DB.matwater, "pond");
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.pond));
-      tr.appendChild(td(r.chem));
-      tr.appendChild(td(r.brand));
-      tr.appendChild(td(r.company));
-      tr.appendChild(td(r.reg));
-      tr.appendChild(td(fmtOr(r.qty, 2), "num"));
-      tr.appendChild(td(fmtOr(r.volume, 2), "num"));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("matwater", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#matwaterCount"), "MatWater");
-    $("#cntMatWater").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: footbath ---------------- */
-  function renderFootbath() {
-    var tb = $("#tbodyFootbath");
-    tb.textContent = "";
-    var rows = sortByDate(DB.footbath, "chem");
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.chem));
-      tr.appendChild(td(r.brand));
-      tr.appendChild(td(r.reg));
-      tr.appendChild(td(fmtOr(r.qty, 2), "num"));
-      tr.appendChild(td(fmtOr(r.size, 2), "num"));
-      tr.appendChild(td(r.place));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("footbath", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#footbathCount"), "Footbath");
-    $("#cntFootbath").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: equipment wash ---------------- */
-  function renderEquipment() {
-    var tb = $("#tbodyEquipment");
-    tb.textContent = "";
-    var rows = sortByDate(DB.equipment, "chem");
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.chem));
-      tr.appendChild(td(r.brand));
-      tr.appendChild(td(r.reg));
-      tr.appendChild(td(fmtOr(r.qty, 2), "num"));
-      tr.appendChild(td(r.pond));
-      tr.appendChild(td(r.item));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("equipment", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#equipmentCount"), "Equipment");
-    $("#cntEquipment").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: water source ---------------- */
-  function renderWaterSource() {
-    var tb = $("#tbodyWaterSource");
-    tb.textContent = "";
-    var rows = sortByDate(DB.watersource, "source");
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.source));
-      tr.appendChild(td(r.pond));
-      tr.appendChild(td(fmtOr(r.qty, 2), "num"));
-      tr.appendChild(td(fmtOr(r.salinity, 1), "num"));
-      tr.appendChild(td(fmtOr(r.ph, 2), "num"));
-      tr.appendChild(td(r.treatment));
-      tr.appendChild(td(r.result));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("watersource", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#watersourceCount"), "WaterSource");
-    $("#cntWaterSrc").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- render: animal movement ---------------- */
-  function renderMove() {
-    var tb = $("#tbodyMove");
-    tb.textContent = "";
-    var rows = sortByDate(DB.move, "from");
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      tr.appendChild(td(thDate(r.date)));
-      tr.appendChild(td(r.type));
-      tr.appendChild(td(r.from));
-      tr.appendChild(td(r.to));
-      tr.appendChild(td(r.species));
-      tr.appendChild(td(r.count === "" ? "" : num(r.count), "num"));
-      tr.appendChild(td(fmtOr(r.weight, 2), "num"));
-      tr.appendChild(td(r.method));
-      tr.appendChild(td(r.sender));
-      tr.appendChild(td(r.receiver));
-      tr.appendChild(td(r.doc));
-      tr.appendChild(recorderCell(r.recorder));
-      tr.appendChild(td(r.note));
-      tr.appendChild(actionCell("move", r.id));
-      tb.appendChild(tr);
-    });
-    setWrap(rows.length, rows.length, $("#moveCount"), "Move");
-    $("#cntMove").textContent = rows.length + " รายการ";
-  }
-
-  /* ---------------- dashboard stats ---------------- */
-  function setStat(el, value, unit) {
-    el.textContent = "";
-    el.appendChild(document.createTextNode(value));
-    if (unit) {
-      var sm = document.createElement("small");
-      sm.textContent = unit;
-      el.appendChild(sm);
-    }
-  }
-  function renderStats() {
-    var t = todayISO();
-    setStat($("#statAccess"), String(DB.access.filter(function (r) { return r.date === t; }).length), "รายการ");
-    setStat($("#statFeed"), String(DB.feed.filter(function (r) { return r.date === t; }).length), "บ่อ");
-    setStat($("#statHealth"), String(DB.health.filter(function (r) { return r.date === t; }).length), "บ่อ");
-
-    var last = DB.water.slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
-      return (a.time || "").localeCompare(b.time || "");
-    }).pop();
-    if (last) setStat($("#statWater"), thDate(last.date), last.pond ? "บ่อ " + last.pond : "");
-    else setStat($("#statWater"), "-", "");
-
-    var matToday = DB.matwater.filter(function (r) { return r.date === t; }).length +
-                   DB.footbath.filter(function (r) { return r.date === t; }).length +
-                   DB.equipment.filter(function (r) { return r.date === t; }).length;
-    setStat($("#statMaterial"), String(matToday), "รายการ");
-    setStat($("#statWaterSrc"), String(DB.watersource.filter(function (r) { return r.date === t; }).length), "รายการ");
-    setStat($("#statMove"), String(DB.move.filter(function (r) { return r.date === t; }).length), "รายการ");
-    var total = MODULES.reduce(function (sum, m) { return sum + DB[m].length; }, 0);
-    setStat($("#statTotal"), String(total), "รายการ");
-  }
-
-  function renderAll() {
-    renderAccess();
-    renderFeed();
-    renderHealth();
-    renderWater();
-    renderMatWater();
-    renderFootbath();
-    renderEquipment();
-    renderWaterSource();
-    renderMove();
-    renderStats();
-  }
-
-  /* ---------------- live total for feed ---------------- */
-  function updateFeedTotal() {
-    var total = num($("#f_f0830").value) + num($("#f_f1200").value) +
-                num($("#f_f1600").value) + num($("#f_f2000").value);
-    $("#f_total").value = total.toFixed(2);
-  }
-  ["f_f0830", "f_f1200", "f_f1600", "f_f2000"].forEach(function (id) {
-    document.getElementById(id).addEventListener("input", updateFeedTotal);
-  });
-
-  function focusFirstBad(form) {
-    var bad = form.querySelector(".bad");
-    if (bad) bad.focus();
-    toast("กรุณาตรวจสอบข้อมูลที่ยังไม่ครบหรือไม่ถูกต้อง", "err");
-  }
-
-  /* ---------------- form: access ---------------- */
-  $("#formAccess").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("a_date", "วันที่");
-    var timeIn = reqText("a_in", "เวลาเข้า");
-    var fullName = reqText("a_name", "ชื่อ-นามสกุล");
-    var organization = reqText("a_org", "หน่วยงาน/ที่ทำงาน");
-    var objective = reqText("a_objective", "วัตถุประสงค์การเข้าฟาร์ม");
-    var recorder = readRecorder("access");
-    var timeOut = $("#a_out").value || "";
-    clearErr("a_out");
-    if (timeOut && timeIn && timeOut < timeIn) {
-      setErr("a_out", "เวลาออกต้องไม่ก่อนเวลาเข้า");
-      timeOut = null;
-    }
-    if (!date || !timeIn || !fullName || !organization || !objective || timeOut === null || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.access.push({
-      id: uid(), date: date, timeIn: timeIn, timeOut: timeOut,
-      type: $("#a_type").value, fullName: fullName, organization: organization,
-      objective: objective, recorder: recorder, note: $("#a_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#a_date").value = todayISO();
-    $("#a_in").value = nowHM();
-    resetRecorder("access");
-    renderAll();
-    toast("บันทึกข้อมูลการเข้าออกฟาร์มแล้ว", "ok");
-  });
-
-  /* ---------------- form: feed ---------------- */
-  $("#formFeed").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("f_date", "วันที่");
-    var pond = reqText("f_pond", "บ่อ");
-    var age = optNum("f_age", { max: 365, msgMax: "อายุไม่ควรเกิน 365 วัน" });
-    var f1 = optNum("f_f0830"), f2 = optNum("f_f1200"), f3 = optNum("f_f1600"), f4 = optNum("f_f2000");
-    var t1 = optNum("f_t0830", { max: 45, msgMax: "อุณหภูมิต้องอยู่ระหว่าง 0-45 °C" });
-    var t2 = optNum("f_t1500", { max: 45, msgMax: "อุณหภูมิต้องอยู่ระหว่าง 0-45 °C" });
-    var recorder = readRecorder("feed");
-    if (!date || !pond || [age, f1, f2, f3, f4, t1, t2].indexOf(undefined) !== -1 || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.feed.push({
-      id: uid(), date: date, pond: pond, age: age,
-      feed0830: f1, feed1200: f2, feed1600: f3, feed2000: f4,
-      temp0830: t1, temp1500: t2, recorder: recorder, note: $("#f_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#f_date").value = todayISO();
-    $("#f_pond").value = pond;
-    resetRecorder("feed");
-    updateFeedTotal();
-    renderAll();
-    toast("บันทึกการให้อาหารและอุณหภูมิแล้ว", "ok");
-  });
-
-  /* ---------------- form: health ---------------- */
-  $("#formHealth").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("h_date", "วันที่");
-    var pond = reqText("h_pond", "เลขที่บ่อ");
-    var d1 = optNum("h_dead0830", { max: 1000000, msgMax: "จำนวนมากเกินไป" });
-    var d2 = optNum("h_dead1600", { max: 1000000, msgMax: "จำนวนมากเกินไป" });
-    var recorder = readRecorder("health");
-    if (!date || !pond || d1 === undefined || d2 === undefined || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.health.push({
-      id: uid(), date: date, pond: pond,
-      gut0830: $("#h_gut0830").value, white0830: $("#h_white0830").value, dead0830: d1,
-      gut1600: $("#h_gut1600").value, white1600: $("#h_white1600").value, dead1600: d2,
-      feedManagement: $("#h_feed").value, recorder: recorder, note: $("#h_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#h_date").value = todayISO();
-    $("#h_pond").value = pond;
-    resetRecorder("health");
-    renderAll();
-    toast("บันทึกสุขภาพสัตว์น้ำแล้ว", "ok");
-  });
-
-  /* ---------------- form: water ---------------- */
-  $("#formWater").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("w_date", "วันที่");
-    var pond = reqText("w_pond", "เลขที่บ่อ");
-    var nh3 = optNum("w_nh3");
-    var no2 = optNum("w_no2");
-    var dox = optNum("w_dox");
-    var ph = optNum("w_ph", { max: 14, msgMax: "ค่า pH ต้องอยู่ระหว่าง 0-14" });
-    var mg = optNum("w_mg");
-    var ca = optNum("w_ca");
-    var sal = optNum("w_sal", { max: 60, msgMax: "ค่าความเค็มต้องอยู่ระหว่าง 0-60 ppt" });
-    var recorder = readRecorder("water");
-    if (!date || !pond || [nh3, no2, dox, ph, mg, ca, sal].indexOf(undefined) !== -1 || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.water.push({
-      id: uid(), date: date, time: $("#w_time").value || "", pond: pond,
-      ammonia: nh3, nitrite: no2, dox: dox, ph: ph, magnesium: mg, calcium: ca, salinity: sal,
-      recorder: recorder, note: $("#w_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#w_date").value = todayISO();
-    $("#w_time").value = nowHM();
-    $("#w_pond").value = pond;
-    resetRecorder("water");
-    renderAll();
-    toast("บันทึกคุณภาพน้ำแล้ว", "ok");
-  });
-
-  /* ---------------- form: material for water preparation ---------------- */
-  $("#formMatWater").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("mw_date", "วันที่");
-    var pond = reqText("mw_pond", "เลขบ่อ");
-    var chem = reqText("mw_chem", "ชนิดสารเคมี");
-    var qty = optNum("mw_qty");
-    var volume = optNum("mw_volume");
-    var recorder = readRecorder("matwater");
-    if (!date || !pond || !chem || qty === undefined || volume === undefined || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.matwater.push({
-      id: uid(), date: date, pond: pond, chem: chem,
-      brand: $("#mw_brand").value.trim(), company: $("#mw_company").value.trim(),
-      reg: $("#mw_reg").value.trim(), qty: qty, volume: volume,
-      recorder: recorder, note: $("#mw_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    var keepPond = pond;
-    this.reset();
-    $("#mw_date").value = todayISO();
-    $("#mw_pond").value = keepPond;
-    resetRecorder("matwater");
-    renderAll();
-    toast("บันทึกวัสดุที่ใช้ในการเตรียมน้ำแล้ว", "ok");
-  });
-
-  /* ---------------- form: footbath ---------------- */
-  $("#formFootbath").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("fb_date", "วันที่");
-    var chem = reqText("fb_chem", "ชนิดสารเคมี");
-    var qty = optNum("fb_qty");
-    var size = optNum("fb_size");
-    var recorder = readRecorder("footbath");
-    if (!date || !chem || qty === undefined || size === undefined || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.footbath.push({
-      id: uid(), date: date, chem: chem,
-      brand: $("#fb_brand").value.trim(), reg: $("#fb_reg").value.trim(),
-      qty: qty, size: size, place: $("#fb_place").value.trim(),
-      recorder: recorder, note: $("#fb_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#fb_date").value = todayISO();
-    resetRecorder("footbath");
-    renderAll();
-    toast("บันทึกวัสดุอ่างย่ำเท้าแล้ว", "ok");
-  });
-
-  /* ---------------- form: equipment wash ---------------- */
-  $("#formEquipment").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("eq_date", "วันที่");
-    var chem = reqText("eq_chem", "ชนิดสารเคมี");
-    var qty = optNum("eq_qty");
-    var recorder = readRecorder("equipment");
-    if (!date || !chem || qty === undefined || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.equipment.push({
-      id: uid(), date: date, chem: chem,
-      brand: $("#eq_brand").value.trim(), reg: $("#eq_reg").value.trim(), qty: qty,
-      pond: $("#eq_pond").value.trim(), item: $("#eq_item").value.trim(),
-      recorder: recorder, note: $("#eq_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#eq_date").value = todayISO();
-    resetRecorder("equipment");
-    renderAll();
-    toast("บันทึกวัสดุล้างอุปกรณ์แล้ว", "ok");
-  });
-
-  /* ---------------- form: water source ---------------- */
-  $("#formWaterSource").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("ws_date", "วันที่");
-    var source = reqText("ws_source", "แหล่งน้ำที่ใช้");
-    var qty = optNum("ws_qty");
-    var sal = optNum("ws_sal", { max: 60, msgMax: "ค่าความเค็มต้องอยู่ระหว่าง 0-60 ppt" });
-    var ph = optNum("ws_ph", { max: 14, msgMax: "ค่า pH ต้องอยู่ระหว่าง 0-14" });
-    var recorder = readRecorder("watersource");
-    if (!date || !source || [qty, sal, ph].indexOf(undefined) !== -1 || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.watersource.push({
-      id: uid(), date: date, source: source, pond: $("#ws_pond").value.trim(),
-      qty: qty, salinity: sal, ph: ph,
-      treatment: $("#ws_treat").value.trim(), result: $("#ws_result").value,
-      recorder: recorder, note: $("#ws_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#ws_date").value = todayISO();
-    resetRecorder("watersource");
-    renderAll();
-    toast("บันทึกแหล่งน้ำใช้แล้ว", "ok");
-  });
-
-  /* ---------------- form: animal movement ---------------- */
-  $("#formMove").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var date = reqText("mv_date", "วันที่");
-    var from = reqText("mv_from", "ต้นทาง");
-    var to = reqText("mv_to", "ปลายทาง");
-    var count = optNum("mv_count", { max: 100000000, msgMax: "จำนวนมากเกินไป" });
-    var weight = optNum("mv_weight");
-    var recorder = readRecorder("move");
-    if (!date || !from || !to || count === undefined || weight === undefined || !recorder) {
-      focusFirstBad(this);
-      return;
-    }
-    DB.move.push({
-      id: uid(), date: date, type: $("#mv_type").value,
-      from: from, to: to, species: $("#mv_species").value.trim(),
-      count: count, weight: weight, method: $("#mv_method").value.trim(),
-      sender: $("#mv_sender").value.trim(), receiver: $("#mv_receiver").value.trim(),
-      doc: $("#mv_doc").value.trim(), recorder: recorder, note: $("#mv_note").value.trim()
-    });
-    if (!saveAll(DB)) return;
-    this.reset();
-    $("#mv_date").value = todayISO();
-    resetRecorder("move");
-    renderAll();
-    toast("บันทึกการเคลื่อนย้ายสัตว์น้ำแล้ว", "ok");
-  });
-
-  /* ---------------- ผู้บันทึกข้อมูล + ช่องลงลายมือชื่อ ---------------- */
-  var STAFF = [
-    "นายเจนณรงค์ ละอองสินธุ์",
-    "นายกฤษณ์ธนสรรค์ อินทร์บำรุง",
-    "นางสาวนฤมล เชื้อน้อย",
-    "นายบุญมี อารีเอื้อ",
-    "นางสมร สิริโภคา",
-    "นายจตุพร ปรัชญา",
-    "นางสาวชมพูนุท สามห้วย"
-  ];
-  var STAFF_OTHER = "__other__";
-  var REC_KEYS = {
-    access: "a", feed: "f", health: "h", water: "w",
-    matwater: "mw", footbath: "fb", equipment: "eq", watersource: "ws", move: "mv"
-  };
-  var REC_MODULES = Object.keys(REC_KEYS);
-  var lastRecorder = "";   // เลือกคนเดิมค้างไว้ให้บันทึกครั้งถัดไปสะดวก
-
-  function buildStaffSelects() {
-    REC_MODULES.forEach(function (m) {
-      var sel = document.getElementById(REC_KEYS[m] + "_rec");
-      if (!sel) return;
-      sel.textContent = "";
-      var ph = document.createElement("option");
-      ph.value = "";
-      ph.textContent = "-- เลือกผู้บันทึกข้อมูล --";
-      sel.appendChild(ph);
-      STAFF.forEach(function (name, i) {
-        var o = document.createElement("option");
-        o.value = name;
-        o.textContent = (i + 1) + ". " + name;
-        sel.appendChild(o);
-      });
-      var other = document.createElement("option");
-      other.value = STAFF_OTHER;
-      other.textContent = (STAFF.length + 1) + ". อื่น ๆ (ระบุชื่อ)";
-      sel.appendChild(other);
-    });
-  }
-
-  function otherFieldOf(sel) {
-    var field = sel.parentNode.parentNode.querySelector(".field-other");
-    return field;
-  }
-
-  function onRecorderChange(sel) {
-    var field = otherFieldOf(sel);
-    var isOther = sel.value === STAFF_OTHER;
-    if (field) field.hidden = !isOther;
-    sel.classList.remove("bad");
-    clearErr(sel.id);
-    if (isOther && field) {
-      var input = field.querySelector("input");
-      if (input) { input.focus(); }
-    }
-  }
-
-  /* อ่านค่าผู้บันทึกจากฟอร์ม: คืนค่า null เมื่อยังไม่กรอกครบ */
-  function readRecorder(module) {
-    var sel = document.getElementById(REC_KEYS[module] + "_rec");
-    if (!sel) return "";
-    var idOther = REC_KEYS[module] + "_rec_other";
-    if (!sel.value) {
-      setErr(sel.id, "กรุณาเลือกผู้บันทึกข้อมูล");
-      return null;
-    }
-    if (sel.value === STAFF_OTHER) {
-      var txt = (document.getElementById(idOther).value || "").trim();
-      if (!txt) {
-        setErr(idOther, "กรุณาระบุชื่อ-นามสกุลผู้บันทึก");
-        return null;
-      }
-      clearErr(idOther);
-      return txt;
-    }
-    clearErr(idOther);
-    return sel.value;
-  }
-
-  function resetRecorder(module) {
-    var sel = document.getElementById(REC_KEYS[module] + "_rec");
-    if (!sel) return;
-    var idOther = REC_KEYS[module] + "_rec_other";
-    var otherInput = document.getElementById(idOther);
-    if (lastRecorder && lastRecorder !== STAFF_OTHER && STAFF.indexOf(lastRecorder) !== -1) {
-      sel.value = lastRecorder;
-      if (otherInput) otherInput.value = "";
-    } else {
-      sel.value = "";
-    }
-    clearErr(sel.id);
-    clearErr(idOther);
-    onRecorderChange(sel);
-  }
-
-  /* เตรียมปุ่มปฏิทิน/ช่องผู้บันทึกให้ทุกฟอร์ม */
-  function initRecorderFields() {
-    buildStaffSelects();
-    REC_MODULES.forEach(function (m) {
-      var sel = document.getElementById(REC_KEYS[m] + "_rec");
-      if (!sel) return;
-      sel.addEventListener("change", function () {
-        if (sel.value && sel.value !== STAFF_OTHER) lastRecorder = sel.value;
-        onRecorderChange(sel);
-      });
-      var idOther = REC_KEYS[m] + "_rec_other";
-      var otherInput = document.getElementById(idOther);
-      if (otherInput) {
-        otherInput.addEventListener("input", function () {
-          if (otherInput.value.trim()) clearErr(idOther);
-        });
-      }
-      onRecorderChange(sel);
-    });
-  }
-
-  /* ชื่อผู้บันทึกสำหรับแสดงในตาราง */
-  function recorderCell(name) {
-    return td(name || "-", "rec-cell");
-  }
-
-  /* ---------------- report / export ---------------- */
-  var reportPicks = {};
-  var reportRangeFrom = "", reportRangeTo = "";
-
-  function gOPts() {
-    var selected = MODULES.filter(function (k) { return reportPicks[k]; });
-    return {
-      from: reportRangeFrom,
-      to: reportRangeTo,
-      farm: $("#rp_farm").value.trim(),
-      by: $("#rp_by").value.trim(),
-      modules: selected.length ? selected : null,
-      staff: STAFF
-    };
-  }
-  function setRangeButtonsDisabled() {}
-  function refreshReportSummary() {
-    var opts = gOPts();
-    var data = BioReport.buildData(DB, opts);
-    var picks = opts.modules || MODULES;
-    var n = data.sections.reduce(function (s, x) { return s + x.rows.length; }, 0);
-    var txt = "เลือกข้อมูล " + picks.length + " หมวด - พบ " + n +
-      " รายการ | ช่วง: " + (opts.from ? BioReport.thDateFull(opts.from) : "เริ่มต้น") +
-      (opts.to ? " ถึง " + BioReport.thDateFull(opts.to) : " ถึงปัจจุบัน");
-    var el = $("#reportSummary");
-    if (el) el.textContent = txt;
-    return data;
-  }
-
-  function buildReportPicks() {
-    var wrap = $("#reportPicks");
-    if (!wrap) return;
-    wrap.textContent = "";
-    BioReport.MODULES.forEach(function (m) {
-      var count = (DB[m.key] || []).length;
-      reportPicks[m.key] = reportPicks[m.key] !== false;
-      var label = document.createElement("label");
-      label.className = "pick";
-      var cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = reportPicks[m.key] !== false;
-      cb.addEventListener("change", function () {
-        reportPicks[m.key] = cb.checked;
-        refreshReportSummary();
-      });
-      var span = document.createElement("span");
-      span.textContent = m.title;
-      var cnt = document.createElement("span");
-      cnt.className = "cnt";
-      cnt.textContent = count + " รายการ";
-      label.appendChild(cb);
-      label.appendChild(span);
-      label.appendChild(cnt);
-      wrap.appendChild(label);
-    });
-  }
-
-  function setRange(from, to) {
-    reportRangeFrom = from;
-    reportRangeTo = to;
-    $("#rp_from").value = from;
-    $("#rp_to").value = to;
-    refreshReportSummary();
-  }
-  $all("[data-range]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var r = b.getAttribute("data-range");
-      var today = todayISO();
-      if (r === "all") { setRange("", ""); return; }
-      if (r === "7") { var d7 = new Date(); d7.setDate(d7.getDate() - 6); setRange(d7.toISOString().slice(0, 10), today); return; }
-      if (r === "30") { var d30 = new Date(); d30.setDate(d30.getDate() - 29); setRange(d30.toISOString().slice(0, 10), today); return; }
-      if (r === "month") {
-        var d = new Date();
-        var first = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-01";
-        setRange(first, today);
-        return;
-      }
-    });
-  });
-  $("#rp_from").addEventListener("change", function () { reportRangeFrom = this.value; refreshReportSummary(); });
-  $("#rp_to").addEventListener("change", function () { reportRangeTo = this.value; refreshReportSummary(); });
-  $("#rp_farm").addEventListener("input", refreshReportSummary);
-  $("#rp_by").addEventListener("input", refreshReportSummary);
-
-  function ensureData() {
-    var data = refreshReportSummary();
-    var picks = gOPts().modules;
-    if (!picks || !picks.length) { toast("กรุณาเลือกหมวดข้อมูลอย่างน้อย 1 หมวด", "err"); return null; }
-    if (data.total === 0) { toast("ไม่มีข้อมูลในช่วงที่เลือก", "err"); return null; }
-    return data;
-  }
-
-  $("#btnExpWord").addEventListener("click", function () {
-    var data = ensureData();
-    if (!data) return;
-    try { BioReport.buildDocx(data); toast("สร้างไฟล์ Word แล้ว", "ok"); }
-    catch (e) { console.error(e); toast("สร้างไฟล์ Word ไม่สำเร็จ", "err"); }
-  });
-  $("#btnExpExcel").addEventListener("click", function () {
-    var data = ensureData();
-    if (!data) return;
-    try { BioReport.buildXlsx(data); toast("สร้างไฟล์ Excel แล้ว", "ok"); }
-    catch (e) { console.error(e); toast("สร้างไฟล์ Excel ไม่สำเร็จ", "err"); }
-  });
-  $("#btnExpPpt").addEventListener("click", function () {
-    var data = ensureData();
-    if (!data) return;
-    try { BioReport.buildPptx(data); toast("สร้างไฟล์ PowerPoint แล้ว", "ok"); }
-    catch (e) { console.error(e); toast("สร้างไฟล์ PowerPoint ไม่สำเร็จ", "err"); }
-  });
-  $("#btnExpJson").addEventListener("click", function () {
-    var data = ensureData();
-    if (!data) return;
-    try {
-      var n = BioReport.exportJson(DB, gOPts());
-      toast("ส่งออก JSON แล้ว " + n + " รายการ", "ok");
-    } catch (e) { console.error(e); toast("ส่งออก JSON ไม่สำเร็จ", "err"); }
-  });
-
-  $("#btnPreview").addEventListener("click", function () {
-    var data = refreshReportSummary();
-    var box = $("#previewBox");
-    var badge = $("#previewBadge");
-    if (!box) return;
-    box.innerHTML = BioReport.buildReportHTML(data);
-    if (badge) badge.textContent = data.total + " รายการ";
-    toast("แสดงตัวอย่างรายงานแล้ว", "ok");
-  });
-  $("#btnPrintPreview").addEventListener("click", function () {
-    var data = refreshReportSummary();
-    var ok = BioReport.openPrintWindow(data, true);
-    if (!ok) toast("ไม่สามารถเปิดหน้าพิมพ์ได้ (เบราว์เซอร์บล็อก pop-up)", "err");
-  });
-  $("#btnExpPdf").addEventListener("click", function () {
-    var data = refreshReportSummary();
-    var ok = BioReport.openPrintWindow(data, true);
-    if (!ok) toast("ไม่สามารถเปิดหน้าพิมพ์ได้ กรุณาอนุญาต pop-up แล้วเลือก Save as PDF", "err");
-    else toast("เปิดหน้าพิมพ์แล้ว เลือกปลายทาง \"Save as PDF\"", "ok");
-  });
-
-  /* ---------------- import json ---------------- */
-  var importFileInput = $("#importFile");
-  var importInfo = $("#importInfo");
-  var pendingImport = null;
-
-  function fileInfo(el) {
-    if (!importInfo) return;
-    if (!pendingImport) { importInfo.textContent = "ยังไม่ได้เลือกไฟล์"; return; }
-    importInfo.textContent = "ไฟล์: " + pendingImport.name + " (" +
-      (pendingImport.size / 1024).toFixed(1) + " KB) - พบหมวดข้อมูล " +
-      Object.keys(pendingImport.data.modules).length + " หมวด, " +
-      pendingImport.data.total + " รายการ" +
-      (pendingImport.data.farm ? " - ฟาร์ม: " + pendingImport.data.farm : "");
-  }
-
-  importFileInput.addEventListener("change", function () {
-    pendingImport = null;
-    var f = this.files && this.files[0];
-    if (!f) { fileInfo(); return; }
-    function done(text) {
-      try {
-        var parsed = BioReport.parseJsonFile(text);
-        pendingImport = { name: f.name, size: f.size, data: parsed };
-        fileInfo();
-        if (parsed.warnings.length) {
-          toast("นำเข้าได้บางส่วน: " + parsed.warnings.join("; "), "err");
-        } else {
-          toast("อ่านไฟล์ JSON สำเร็จ", "ok");
-        }
-      } catch (e) {
-        console.error(e);
-        pendingImport = null;
-        fileInfo();
-        toast("ไฟล์ JSON ไม่ถูกต้อง: " + e.message, "err");
-      }
-    }
-    // 1) เบราว์เซอร์มาตรฐาน
-    if (typeof FileReader !== "undefined" && f.text) {
-      f.text().then(done).catch(function () { toast("อ่านไฟล์ไม่สำเร็จ", "err"); });
-      return;
-    }
-    // 2) Safari รุ่นเก่า / WebView ที่ FileReader ไม่ครบ
-    if (typeof FileReader !== "undefined") {
-      var reader = new FileReader();
-      reader.onload = function () { done(String(reader.result)); };
-      reader.onerror = function () { toast("อ่านไฟล์ไม่สำเร็จ", "err"); };
-      try { reader.readAsText(f, "utf-8"); }
-      catch (e) { toast("เบราว์เซอร์นี้ไม่รองรับการอ่านไฟล์ กรุณาใช้ Chrome/Safari รุ่นใหม่", "err"); }
-      return;
-    }
-    toast("เบราว์เซอร์นี้ไม่รองรับการนำเข้าไฟล์", "err");
-  });
-
-  $("#btnImport").addEventListener("click", function () {
-    if (!pendingImport) { toast("กรุณาเลือกไฟล์ .json ก่อน", "err"); return; }
-    var mode = $("#importMode").value;
-    var actionText = mode === "replace" ? "แทนที่ข้อมูลเดิมทั้งหมด" : "รวมข้อมูลกับข้อมูลเดิม";
-    askConfirm("ต้องการนำเข้าข้อมูลโดยการ" + actionText + "หรือไม่? (" +
-      pendingImport.data.total + " รายการ)").then(function (ok) {
-      if (!ok) return;
-      var r = BioReport.mergeImport(DB, pendingImport.data, mode);
-      if (saveAll(DB)) {
-        renderAll();
-        $("#reportPicks").textContent = "";
-        buildReportPicks();
-        pendingImport = null;
-        importFileInput.value = "";
-        fileInfo();
-        toast("นำเข้าสำเร็จ: เพิ่ม " + r.added + " รายการ, ซ้ำ " + r.skipped + ", แทนที่ " + r.replaced, "ok");
-      }
-    });
-  });
-
-  /* ---------------- init ---------------- */
-  $("#todayChip").textContent = longThaiToday();
-
-  /* --- เบราว์เซอร์ไม่รู้จัก date/time: สร้างช่องกรอกทดแทน (ใช้ได้บน iOS Safari รุ่นเก่า) --- */
-  function isoToThai(iso) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || "")) return "";
-    var p = iso.split("-");
-    return String(parseInt(p[2], 10)) + "/" + p[1] + "/" + (parseInt(p[0], 10) + 543);
-  }
-  function thaiToISO(txt) {
-    var t = String(txt || "").replace(/[๐-๙]/g, function (ch) {
-      return String.fromCharCode(ch.charCodeAt(0) - 0x0E50 + 48);
-    });
-    var m = t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
-    if (!m) return null;
-    var y = parseInt(m[3], 10);
-    if (y < 100) y += 2500;
-    if (y > 2400) y -= 543;
-    var d = parseInt(m[1], 10), mo = parseInt(m[2], 10);
-    if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
-    var dt = new Date(y, mo - 1, d);
-    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
-    return y + "-" + String(mo).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-  }
-  function upgradeDateInput(el) {
-    if (!el || el.dataset.upgraded) return;
-    el.dataset.upgraded = "1";
-    el.type = "text";
-    el.setAttribute("inputmode", "numeric");
-    el.setAttribute("placeholder", "วว/ดด/ปปปป");
-    el.setAttribute("maxlength", "10");
-    el.removeAttribute("min");
-    el.removeAttribute("max");
-    var picker = document.createElement("input");
-    picker.type = "text";
-    picker.className = "dt-a";
-    var src = document.createElement("input");
-    src.type = "date";
-    src.style.cssText = "position:absolute;opacity:0;width:1px;height:1px;pointer-events:none";
-    src.tabIndex = -1;
-    var wrap = document.createElement("div");
-    wrap.className = "dt-fallback";
-    picker.setAttribute("readonly", "readonly");
-    picker.setAttribute("aria-label", "เลือกวันที่จากปฏิทิน");
-    picker.placeholder = "แตะเพื่อเลือก";
-    el.parentNode.insertBefore(wrap, el);
-    wrap.appendChild(picker);
-    wrap.appendChild(src);
-    el.value = "";
-    function syncFromISO(iso) { picker.value = isoToThai(iso); el.value = iso || ""; }
-    function commit(text) {
-      var iso = thaiToISO(text);
-      if (!iso) { picker.classList.add("bad"); return; }
-      picker.classList.remove("bad");
-      el.value = iso;
-    }
-    picker.addEventListener("focus", function () {
-      if (!picker.value && el.value) picker.value = isoToThai(el.value);
-    });
-    picker.addEventListener("input", function () {
-      if (picker.value.length >= 8) commit(picker.value);
-    });
-    picker.addEventListener("blur", function () {
-      if (picker.value.trim()) commit(picker.value.trim()); else picker.classList.remove("bad");
-    });
-    picker.addEventListener("click", function () {
-      try {
-        src.value = el.value || "";
-        if (typeof src.showPicker === "function") { src.showPicker(); }
-        else { src.focus(); src.click(); }
-      } catch (e) { /* ใช้การพิมพ์วันที่แทน */ }
-    });
-    src.addEventListener("change", function () {
-      if (src.value) { syncFromISO(src.value); picker.classList.remove("bad"); }
-    });
-    el.addEventListener("input", function () {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(el.value)) picker.value = isoToThai(el.value);
-    });
-    el.style.display = "none";
-    picker._setISO = syncFromISO;
-    el._dtPicker = picker;          // ให้ clearErr/setErr รู้จักช่องวันที่ทดแทน
-  }
-  function upgradeTimeInput(el) {
-    if (!el || el.dataset.upgraded) return;
-    el.dataset.upgraded = "1";
-    el.type = "text";
-    el.setAttribute("inputmode", "numeric");
-    el.setAttribute("placeholder", "ชม:นน");
-    el.setAttribute("maxlength", "5");
-    function normalise(commit) {
-      var v = String(el.value || "").replace(/[๐-๙]/g, function (ch) {
-        return String.fromCharCode(ch.charCodeAt(0) - 0x0E50 + 48);
-      }).replace(/[^0-9:]/g, "");
-      if (!v) { el.value = ""; return; }
-      if (v.indexOf(".") !== -1) v = v.replace(".", ":");
-      var digits = v.replace(/[^0-9]/g, "");
-      if (digits.length === 4) v = digits.slice(0, 2) + ":" + digits.slice(2);
-      else if (digits.length === 3) v = digits.slice(0, 1) + ":" + digits.slice(1);
-      var m = v.match(/^(\d{1,2}):(\d{2})$/);
-      if (m && parseInt(m[1], 10) < 24 && parseInt(m[2], 10) < 60) {
-        el.value = String(parseInt(m[1], 10)).padStart(2, "0") + ":" + m[2];
-      } else if (commit) {
-        el.value = digits;
-      }
-    }
-    el.addEventListener("input", function () { normalise(false); });
-    el.addEventListener("blur", function () { normalise(true); });
-  }
-  /* Android/Chrome บางรุ่น: input[type=time] มีอยู่แต่กล่องเลือกเป็น 24 ชม. ไม่ครบ
-     และบาง WebView ไม่มีปุ่มเลือกเวลา - ไม่เป็นไร ยังพิมพ์ ชม:นน ได้ตามปกติ */
-  var FALLBACK = document.documentElement.className.indexOf("picker-fallback") !== -1;
-  if (FALLBACK) {
-    $all('input[type="date"]').forEach(upgradeDateInput);
-    $all('input[type="time"]').forEach(upgradeTimeInput);
-  }
-  function setDateValue(id, iso) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.value = iso;
-    if (el._setISO) el._setISO(iso);
-  }
-
-  ["a_date", "f_date", "h_date", "w_date", "mw_date", "fb_date", "eq_date", "ws_date", "mv_date"].forEach(function (id) {
-    setDateValue(id, todayISO());
-  });
-  // ปุ่มเลือกวันของตัวกรองรายงาน ก็ต้องรองรับ fallback ด้วย
-  ["rp_from", "rp_to"].forEach(function (id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener("change", function () {
-      if (this._setISO) this._setISO(this.value);
-    });
-  });
-  $("#a_in").value = nowHM();
-  $("#w_time").value = nowHM();
-  updateFeedTotal();
-  initRecorderFields();
-  renderAll();
-  buildReportPicks();
-  refreshReportSummary();
-})();
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>
