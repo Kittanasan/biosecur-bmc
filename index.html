@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="ระบบบันทึกข้อมูลการเลี้ยงกุ้งตามระบบ Biosecurity ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่ง">
+<meta name="description" content="ระบบบันทึกข้อมูลการเลี้ยงกุ้งตามระบบ Biosecurity ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา">
 <meta name="theme-color" content="#075a75">
 <meta name="color-scheme" content="light">
 <meta name="format-detection" content="telephone=no">
@@ -14,7 +14,7 @@
 <meta name="theme-color" content="#075a75" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#075a75" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230a7ea4'/%3E%3Cpath d='M3 12c2-3 4.6-4.5 7.9-4.5 2.8 0 5.2 1 7.5 2.9l1.7-1.5c.5-.4 1 0 .9.6l-.4 2.9.4 2.9c.1.6-.4 1-.9.6l-1.7-1.5C15.7 15 13.3 16 10.5 16 7.2 16 4.6 14.5 2.6 11.5Z' fill='%23fff'/%3E%3C/svg%3E">
-<title>ระบบบันทึกข้อมูลฟาร์มกุ้ง Biosecurity | ศวพช.</title>
+<title>ระบบบันทึกข้อมูลฟาร์มกุ้ง Biosecurity | ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา</title>
 <script>
 /* ------------------------------------------------------------------
    @supports fallback สำหรับ iOS/Safari รุ่นเก่า (< 16.4)
@@ -79,7 +79,7 @@
     padding:14px 0;
   }
   .wrap{max-width:1160px;margin:0 auto;padding:0 16px}
-  .appbar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .appbar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
   .brand-badge{
     width:44px;height:44px;border-radius:50%;
     background:rgba(255,255,255,.16);
@@ -87,9 +87,9 @@
     display:grid;place-items:center;flex:0 0 auto;
   }
   .brand-badge svg{width:26px;height:26px;fill:#fff}
-  .brand-text{min-width:0}
+  .brand-text{min-width:0;flex:1 1 auto;overflow-wrap:break-word}
   .brand-text .t1{font-size:1.06rem;font-weight:700;letter-spacing:.01em}
-  .brand-text .t2{font-size:.78rem;opacity:.9;line-height:1.4}
+  .brand-text .t2{font-size:.78rem;opacity:.9;line-height:1.45}
   main{padding:20px 0 64px}
   .page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px;flex-wrap:wrap}
   .page-head .sub{color:var(--muted);font-size:.88rem}
@@ -482,7 +482,7 @@
     </div>
     <div class="brand-text">
       <div class="t1">ระบบบันทึกข้อมูลการเลี้ยงกุ้ง (Biosecurity)</div>
-      <div class="t2">ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่ง</div>
+      <div class="t2">ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา</div>
     </div>
   </div>
 </header>
@@ -744,7 +744,7 @@
         </div>
         <div class="field">
           <label for="a_org">หน่วยงาน / ที่ทำงาน <span class="req">*</span></label>
-          <input type="text" id="a_org" name="organization" placeholder="เช่น ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่ง" required>
+          <input type="text" id="a_org" name="organization" placeholder="เช่น ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา" required>
           <div class="err" data-err="a_org">กรุณาระบุหน่วยงาน</div>
         </div>
         <div class="field full">
