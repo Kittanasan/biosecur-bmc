@@ -1,0 +1,9 @@
+# FishTech MJU Studio private data
+.deepseek-studio/
+
+# Common local files
+node_modules/
+*.log
+.env
+*.key
+Thumbs.db
