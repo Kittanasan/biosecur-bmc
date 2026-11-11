@@ -40,6 +40,7 @@ window.BioReport = (function () {
       { k: "fullName", t: "ชื่อ-นามสกุล", w: 20 },
       { k: "organization", t: "หน่วยงาน", w: 24 },
       { k: "objective", t: "วัตถุประสงค์", w: 20 },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "feed", title: "การให้อาหารและอุณหภูมิน้ำ", cols: [
@@ -53,6 +54,7 @@ window.BioReport = (function () {
       { k: "total", t: "รวมอาหาร (กก.)", w: 12, type: "num2", calc: "feedTotal" },
       { k: "temp0830", t: "อุณหภูมิ 08.30 (°C)", w: 12, type: "num1" },
       { k: "temp1500", t: "อุณหภูมิ 15.00 (°C)", w: 12, type: "num1" },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "health", title: "สุขภาพสัตว์น้ำ", cols: [
@@ -66,6 +68,7 @@ window.BioReport = (function () {
       { k: "dead1600", t: "ตัวตาย 16.00", w: 11, type: "num" },
       { k: "deadTotal", t: "ตัวตายรวม", w: 10, type: "num", calc: "deadTotal" },
       { k: "feedManagement", t: "การจัดการอาหาร", w: 20 },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "water", title: "คุณภาพน้ำ", cols: [
@@ -79,6 +82,7 @@ window.BioReport = (function () {
       { k: "magnesium", t: "แม็กนีเซียม (mg/L)", w: 12, type: "num2" },
       { k: "calcium", t: "แคลเซียม (mg/L)", w: 12, type: "num2" },
       { k: "salinity", t: "ความเค็ม (ppt)", w: 11, type: "num1" },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "matwater", title: "วัสดุที่ใช้ในการเตรียมน้ำ", cols: [
@@ -90,6 +94,7 @@ window.BioReport = (function () {
       { k: "reg", t: "เลขทะเบียนทางการค้า", w: 16 },
       { k: "qty", t: "ปริมาณ (กก./บ่อ)", w: 12, type: "num2" },
       { k: "volume", t: "ขนาดบ่อ/น้ำ (ตัน)", w: 13, type: "num2" },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "footbath", title: "วัสดุที่ใช้ในการเตรียมอ่างย่ำเท้า", cols: [
@@ -100,6 +105,7 @@ window.BioReport = (function () {
       { k: "qty", t: "ปริมาณ (กรัม)", w: 12, type: "num2" },
       { k: "size", t: "ขนาดอ่าง (ลิตร)", w: 12, type: "num2" },
       { k: "place", t: "ตำแหน่งอ่าง", w: 18 },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "equipment", title: "วัสดุที่ใช้ในการล้างอุปกรณ์", cols: [
@@ -110,6 +116,7 @@ window.BioReport = (function () {
       { k: "qty", t: "ปริมาณ (กรัม)", w: 12, type: "num2" },
       { k: "pond", t: "ขนาดบ่อ", w: 14 },
       { k: "item", t: "อุปกรณ์ที่ล้าง", w: 16 },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "watersource", title: "แหล่งน้ำใช้", cols: [
@@ -121,6 +128,7 @@ window.BioReport = (function () {
       { k: "ph", t: "pH", w: 8, type: "num2" },
       { k: "treatment", t: "การบำบัด", w: 16 },
       { k: "result", t: "ผลตรวจ", w: 11 },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
     { key: "move", title: "การเคลื่อนย้ายสัตว์น้ำ", cols: [
@@ -135,6 +143,7 @@ window.BioReport = (function () {
       { k: "sender", t: "ผู้ส่ง", w: 14 },
       { k: "receiver", t: "ผู้รับ", w: 14 },
       { k: "doc", t: "เอกสาร", w: 12 },
+      { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 16 }
     ]}
   ];
@@ -474,6 +483,20 @@ window.BioReport = (function () {
       });
       h.push('</tbody></table></div>');
     });
+
+    /* --- ช่องลงลายมือชื่อจริง (ใช้เมื่อพิมพ์เอกสารเดือนละ 1 ครั้ง) --- */
+    h.push('<h2 style="font-size:1rem;margin:18px 0 8px">ลงลายมือชื่อ</h2>');
+    h.push('<div style="display:flex;gap:24px;flex-wrap:wrap;margin:8px 0 4px">');
+    [["ผู้จัดทำรายงาน", data.meta.by], ["ผู้ตรวจสอบ", ""], ["ผู้รับรอง", ""]].forEach(function (p) {
+      h.push('<div style="flex:1 1 240px;text-align:center;font-size:.85rem">' +
+        '<div style="height:56px"></div>' +
+        '<div style="border-top:1px dashed #6b8492;margin:0 8px 4px"></div>' +
+        '<div>ลงชื่อ ...................................................</div>' +
+        '<div style="color:#5b7280">' + esc(p[0]) + (p[1] ? " (" + esc(p[1]) + ")" : "") + '</div>' +
+        '</div>');
+    });
+    h.push('</div>');
+    h.push('<div style="font-size:.8rem;color:#5b7280;margin-top:6px">วันที่ ......./......./.......</div>');
     h.push('</div>');
     return h.join("");
   }
@@ -649,6 +672,11 @@ window.BioReport = (function () {
       }
     });
 
+    /* --- ช่องลงลายมือชื่อจริง --- */
+    body.push(wPara("ลงลายมือชื่อ", { size: 24, bold: true, color: "06617F", spaceAfter: 200 }));
+    body.push(wPara("ลงชื่อ ...................................................          ลงชื่อ ...................................................", { size: 18, spaceAfter: 60 }));
+    body.push(wPara("ผู้จัดทำรายงาน" + (data.meta.by ? " (" + data.meta.by + ")" : "") + "                              ผู้รับรอง", { size: 18, spaceAfter: 60 }));
+    body.push(wPara("วันที่ ........../........../..........                              วันที่ ........../........../..........", { size: 18, spaceAfter: 200 }));
     var sectPr = '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>' +
       '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="709" w:footer="709" w:gutter="0"/>' +
       '<w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr>';

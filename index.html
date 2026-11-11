@@ -405,6 +405,42 @@
   .rp-doc h1{font-size:1.15rem;margin:0 0 4px}
   .rp-doc h2{font-size:1rem;margin:16px 0 8px;border-left:4px solid var(--accent);padding-left:8px}
   .rp-doc table{margin:8px 0 14px}
+
+  /* ---------- panel head filter (ดูข้อมูลย้อนหลัง) ---------- */
+  .panel-head{flex-wrap:wrap}
+  .list-filter{display:flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;color:#274852}
+  .list-filter label{white-space:nowrap}
+  .list-filter select{
+    font-family:inherit;font-size:.82rem;font-weight:600;color:var(--text);
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;
+    padding:7px 11px;min-height:38px;width:auto;
+  }
+
+  /* ---------- rec (Recorder) block: ผู้บันทึกข้อมูล + ลายเซ็น ---------- */
+  .rec{
+    margin-top:16px;border:1px solid var(--line);border-top:3px solid var(--accent);
+    border-radius:var(--radius-sm);background:#f7fbfd;padding:12px;
+  }
+  .rec legend{
+    font-size:.82rem;font-weight:800;color:var(--accent-dark);padding:0 6px;
+    background:var(--surface);border-radius:6px;
+  }
+  .rec .rec-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:760px){.rec .rec-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .sign-box{
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;
+    border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;
+    padding:8px 10px;min-height:92px;
+  }
+  .sign-box .sign-space{flex:1 1 auto;display:flex;align-items:flex-end;justify-content:center;
+    width:100%;min-height:40px;font-size:.8rem;color:#9db0ba}
+  .sign-box .sign-line{width:100%;border-top:1px dashed #9db0ba;margin-top:4px}
+  .sign-box .sign-cap{font-size:.72rem;color:var(--muted);text-align:center;line-height:1.35}
+  .sign-box .sign-print{border-bottom:1px dashed #9db0ba;height:34px;width:100%}
+
+  /* ตาราง: คอลัมน์ผู้บันทึก */
+  td.rec-cell{font-size:.8rem;color:#274852;min-width:120px}
+  td.rec-cell .sub{display:block;font-size:.72rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -630,6 +666,16 @@
       <h2 id="accessTitle">ควบคุมการเข้าออกบุคลากรและผู้เยี่ยมชม</h2>
       <div class="s">บันทึกผู้เข้าฟาร์มตามระบบ Biosecurity</div>
     </div>
+    <div class="list-filter">
+      <label for="fltAccess">ดูข้อมูล</label>
+      <select id="fltAccess" data-filter="access">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
+    </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
   <div class="panel-body">
@@ -680,6 +726,29 @@
           <textarea id="a_note" name="note" placeholder="เช่น ผ่านการฆ่าเชื้อก่อนเข้าฟาร์ม / รถเข้าพื้นที่"></textarea>
         </div>
       </div>
+      <fieldset class="rec" id="rec-access">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="a_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="a_rec" class="rec-select"></select>
+            <div class="err" data-err="a_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="a_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="a_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="a_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="a_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -698,7 +767,7 @@
         <thead>
           <tr>
             <th>วันที่</th><th>เข้า</th><th>ออก</th><th>ชื่อ-นามสกุล</th>
-            <th>หน่วยงาน</th><th>วัตถุประสงค์</th><th>หมายเหตุ</th><th></th>
+            <th>หน่วยงาน</th><th>วัตถุประสงค์</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyAccess"></tbody>
@@ -800,6 +869,29 @@
           <textarea id="f_note" name="note" placeholder="เช่น กุ้งกินอาหารดี / ลดอาหารช่วงฝนตก"></textarea>
         </div>
       </div>
+      <fieldset class="rec" id="rec-feed">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="f_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="f_rec" class="rec-select"></select>
+            <div class="err" data-err="f_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="f_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="f_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="f_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="f_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -821,7 +913,7 @@
             <th class="num">08.30</th><th class="num">12.00</th><th class="num">16.00</th><th class="num">20.00</th>
             <th class="num">รวม (กก.)</th>
             <th class="num">อุณหภูมิ 08.30</th><th class="num">อุณหภูมิ 15.00</th>
-            <th>หมายเหตุ</th><th></th>
+            <th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyFeed"></tbody>
@@ -843,6 +935,16 @@
     <div class="titles">
       <h2 id="healthTitle">บันทึกสุขภาพสัตว์น้ำ</h2>
       <div class="s">ลำไส้ ขาว่ายน้ำ และตัวตาย 2 ช่วงเวลา</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltHealth">ดูข้อมูล</label>
+      <select id="fltHealth" data-filter="health">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -944,6 +1046,29 @@
           <textarea id="h_note" name="note" placeholder="เช่น พบกุ้งอ่อนแอหลังฝนตก / เก็บตัวอย่างส่งตรวจ"></textarea>
         </div>
       </div>
+      <fieldset class="rec" id="rec-health">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="h_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="h_rec" class="rec-select"></select>
+            <div class="err" data-err="h_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="h_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="h_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="h_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
 
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="h_reset">ล้างฟอร์ม</button>
@@ -966,7 +1091,7 @@
             <th>ลำไส้ 08.30</th><th>ขาว่ายน้ำ 08.30</th><th class="num">ตาย 08.30</th>
             <th>ลำไส้ 16.00</th><th>ขาว่ายน้ำ 16.00</th><th class="num">ตาย 16.00</th>
             <th class="num">ตายรวม</th>
-            <th>จัดการอาหาร</th><th>หมายเหตุ</th><th></th>
+            <th>จัดการอาหาร</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyHealth"></tbody>
@@ -988,6 +1113,16 @@
     <div class="titles">
       <h2 id="waterTitle">บันทึกคุณภาพน้ำ</h2>
       <div class="s">แอมโมเนีย ไนไตรท์ DO pH แม็กนีเซียม แคลเซียม ความเค็ม</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltWater">ดูข้อมูล</label>
+      <select id="fltWater" data-filter="water">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -1055,6 +1190,29 @@
           <textarea id="w_note" name="note" placeholder="เช่น ค่าไนไตรท์สูง เปลี่ยนถ่ายน้ำ 20%"></textarea>
         </div>
       </div>
+      <fieldset class="rec" id="rec-water">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="w_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="w_rec" class="rec-select"></select>
+            <div class="err" data-err="w_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="w_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="w_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="w_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
 
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="w_reset">ล้างฟอร์ม</button>
@@ -1076,7 +1234,7 @@
             <th>วันที่</th><th>เวลา</th><th>บ่อ</th>
             <th class="num">NH₃ (mg/L)</th><th class="num">NO₂ (mg/L)</th><th class="num">DO (mg/L)</th>
             <th class="num">pH</th><th class="num">Mg (mg/L)</th><th class="num">Ca (mg/L)</th>
-            <th class="num">ความเค็ม (ppt)</th><th>หมายเหตุ</th><th></th>
+            <th class="num">ความเค็ม (ppt)</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyWater"></tbody>
@@ -1098,6 +1256,16 @@
     <div class="titles">
       <h2 id="matwaterTitle">วัสดุที่ใช้ในการเตรียมน้ำ</h2>
       <div class="s">ปูน / คลอรีน / ไอโอดีน และสารเคมีอื่น ๆ พร้อมเลขทะเบียนทางการค้า</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltMatWater">ดูข้อมูล</label>
+      <select id="fltMatWater" data-filter="matwater">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -1147,6 +1315,29 @@
           <textarea id="mw_note" placeholder="เช่น หว่านปูนก่อนใส่คลอรีน 1 วัน"></textarea>
         </div>
       </div>
+      <fieldset class="rec" id="rec-matwater">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="mw_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="mw_rec" class="rec-select"></select>
+            <div class="err" data-err="mw_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="mw_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="mw_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="mw_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="mw_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1166,7 +1357,7 @@
           <tr>
             <th>วันที่</th><th>บ่อ</th><th>ชนิดสารเคมี</th><th>ยี่ห้อ</th><th>บริษัท</th>
             <th>เลขทะเบียน</th><th class="num">ปริมาณ (กก./บ่อ)</th><th class="num">น้ำ (ตัน)</th>
-            <th>หมายเหตุ</th><th></th>
+            <th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyMatWater"></tbody>
@@ -1188,6 +1379,16 @@
     <div class="titles">
       <h2 id="footbathTitle">วัสดุที่ใช้ในการเตรียมอ่างย่ำเท้า</h2>
       <div class="s">ด่างทับทิม / คลอรีน / ไอโอดีน พร้อมขนาดอ่าง</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltFootbath">ดูข้อมูล</label>
+      <select id="fltFootbath" data-filter="footbath">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -1233,6 +1434,29 @@
           <input type="text" id="fb_note" placeholder="เช่น เปลี่ยนน้ำยาใหม่ทุก 2 วัน">
         </div>
       </div>
+      <fieldset class="rec" id="rec-footbath">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="fb_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="fb_rec" class="rec-select"></select>
+            <div class="err" data-err="fb_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="fb_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="fb_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="fb_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="fb_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1252,7 +1476,7 @@
           <tr>
             <th>วันที่</th><th>ชนิดสารเคมี</th><th>ยี่ห้อ / บริษัท</th><th>เลขทะเบียน</th>
             <th class="num">ปริมาณ (กรัม)</th><th class="num">ขนาดอ่าง (ลิตร)</th>
-            <th>ตำแหน่ง</th><th>หมายเหตุ</th><th></th>
+            <th>ตำแหน่ง</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyFootbath"></tbody>
@@ -1274,6 +1498,16 @@
     <div class="titles">
       <h2 id="equipmentTitle">วัสดุที่ใช้ในการล้างอุปกรณ์</h2>
       <div class="s">สารเคมีล้างเครื่องมือ/อุปกรณ์ พร้อมขนาดบ่อ</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltEquipment">ดูข้อมูล</label>
+      <select id="fltEquipment" data-filter="equipment">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -1317,6 +1551,29 @@
           <input type="text" id="eq_note" placeholder="เช่น แช่ 30 นาทีแล้วล้างน้ำสะอาด">
         </div>
       </div>
+      <fieldset class="rec" id="rec-equipment">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="eq_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="eq_rec" class="rec-select"></select>
+            <div class="err" data-err="eq_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="eq_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="eq_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="eq_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="eq_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1335,7 +1592,7 @@
         <thead>
           <tr>
             <th>วันที่</th><th>ชนิดสารเคมี</th><th>ยี่ห้อ / บริษัท</th><th>เลขทะเบียน</th>
-            <th class="num">ปริมาณ (กรัม)</th><th>ขนาดบ่อ</th><th>อุปกรณ์</th><th>หมายเหตุ</th><th></th>
+            <th class="num">ปริมาณ (กรัม)</th><th>ขนาดบ่อ</th><th>อุปกรณ์</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyEquipment"></tbody>
@@ -1357,6 +1614,16 @@
     <div class="titles">
       <h2 id="watersourceTitle">บันทึกแหล่งน้ำใช้</h2>
       <div class="s">แหล่งน้ำ ปริมาณที่ใช้ การบำบัด และผลตรวจคุณภาพเบื้องต้น</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltWaterSource">ดูข้อมูล</label>
+      <select id="fltWaterSource" data-filter="watersource">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -1411,6 +1678,29 @@
           <textarea id="ws_note" placeholder="เช่น น้ำจากคลองผ่านบ่อพัก 3 วันก่อนใช้"></textarea>
         </div>
       </div>
+      <fieldset class="rec" id="rec-watersource">
+        <legend>ผู้บันทึกข้อมูล / ลายเซ็น</legend>
+        <div class="rec-grid">
+          <div class="field">
+            <label for="ws_rec">ผู้บันทึกข้อมูล <span class="req">*</span></label>
+            <select id="ws_rec" class="rec-select"></select>
+            <div class="err" data-err="ws_rec">กรุณาเลือกผู้บันทึกข้อมูล</div>
+          </div>
+          <div class="field field-other" hidden>
+            <label for="ws_rec_other">ระบุชื่อผู้บันทึก (อื่น ๆ)</label>
+            <input type="text" id="ws_rec_other" placeholder="ชื่อ-นามสกุลผู้บันทึก">
+            <div class="err" data-err="ws_rec_other">กรุณาระบุชื่อผู้บันทึก</div>
+          </div>
+          <div class="field">
+            <label>ช่องลงลายมือชื่อ (สำหรับพิมพ์เอกสาร)</label>
+            <div class="sign-box" aria-hidden="true">
+              <div class="sign-space">เซ็นต์จริงเมื่อพิมพ์เอกสาร</div>
+              <div class="sign-line"></div>
+              <div class="sign-cap">ลงชื่อ .................................................<br>ผู้บันทึกข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <div class="actions">
         <button class="btn btn-ghost" type="reset" id="ws_reset">ล้างฟอร์ม</button>
         <button class="btn btn-primary" type="submit">
@@ -1452,6 +1742,16 @@
     <div class="titles">
       <h2 id="moveTitle">บันทึกการเคลื่อนย้ายสัตว์น้ำ</h2>
       <div class="s">ต้นทาง-ปลายทาง จำนวน/น้ำหนัก วิธีขนย้าย และเอกสารกำกับ</div>
+    </div>
+    <div class="list-filter">
+      <label for="fltMove">ดูข้อมูล</label>
+      <select id="fltMove" data-filter="move">
+        <option value="5">5 วันล่าสุด</option>
+        <option value="30" selected>30 วันล่าสุด</option>
+        <option value="90">90 วันล่าสุด</option>
+        <option value="month">เดือนนี้</option>
+        <option value="all">ทั้งหมด</option>
+      </select>
     </div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
   </div>
@@ -2004,6 +2304,7 @@
       tr.appendChild(td(r.fullName));
       tr.appendChild(td(r.organization));
       tr.appendChild(td(r.objective));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("access", r.id));
       tb.appendChild(tr);
@@ -2035,6 +2336,7 @@
       tr.appendChild(td(fmt2(feedTotal(r)), "num"));
       tr.appendChild(td(fmtOr(r.temp0830, 1), "num"));
       tr.appendChild(td(fmtOr(r.temp1500, 1), "num"));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("feed", r.id));
       tb.appendChild(tr);
@@ -2063,6 +2365,7 @@
       tr.appendChild(td(r.dead1600 === "" ? "" : num(r.dead1600), "num"));
       tr.appendChild(td(num(r.dead0830) + num(r.dead1600), "num"));
       tr.appendChild(td(r.feedManagement));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("health", r.id));
       tb.appendChild(tr);
@@ -2091,6 +2394,7 @@
       tr.appendChild(td(fmtOr(r.magnesium, 2), "num"));
       tr.appendChild(td(fmtOr(r.calcium, 2), "num"));
       tr.appendChild(td(fmtOr(r.salinity, 1), "num"));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("water", r.id));
       tb.appendChild(tr);
@@ -2120,6 +2424,7 @@
       tr.appendChild(td(r.reg));
       tr.appendChild(td(fmtOr(r.qty, 2), "num"));
       tr.appendChild(td(fmtOr(r.volume, 2), "num"));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("matwater", r.id));
       tb.appendChild(tr);
@@ -2142,6 +2447,7 @@
       tr.appendChild(td(fmtOr(r.qty, 2), "num"));
       tr.appendChild(td(fmtOr(r.size, 2), "num"));
       tr.appendChild(td(r.place));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("footbath", r.id));
       tb.appendChild(tr);
@@ -2164,6 +2470,7 @@
       tr.appendChild(td(fmtOr(r.qty, 2), "num"));
       tr.appendChild(td(r.pond));
       tr.appendChild(td(r.item));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("equipment", r.id));
       tb.appendChild(tr);
@@ -2187,6 +2494,7 @@
       tr.appendChild(td(fmtOr(r.ph, 2), "num"));
       tr.appendChild(td(r.treatment));
       tr.appendChild(td(r.result));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("watersource", r.id));
       tb.appendChild(tr);
@@ -2213,6 +2521,7 @@
       tr.appendChild(td(r.sender));
       tr.appendChild(td(r.receiver));
       tr.appendChild(td(r.doc));
+      tr.appendChild(recorderCell(r.recorder));
       tr.appendChild(td(r.note));
       tr.appendChild(actionCell("move", r.id));
       tb.appendChild(tr);
@@ -2291,25 +2600,27 @@
     var fullName = reqText("a_name", "ชื่อ-นามสกุล");
     var organization = reqText("a_org", "หน่วยงาน/ที่ทำงาน");
     var objective = reqText("a_objective", "วัตถุประสงค์การเข้าฟาร์ม");
+    var recorder = readRecorder("access");
     var timeOut = $("#a_out").value || "";
     clearErr("a_out");
     if (timeOut && timeIn && timeOut < timeIn) {
       setErr("a_out", "เวลาออกต้องไม่ก่อนเวลาเข้า");
       timeOut = null;
     }
-    if (!date || !timeIn || !fullName || !organization || !objective || timeOut === null) {
+    if (!date || !timeIn || !fullName || !organization || !objective || timeOut === null || !recorder) {
       focusFirstBad(this);
       return;
     }
     DB.access.push({
       id: uid(), date: date, timeIn: timeIn, timeOut: timeOut,
       type: $("#a_type").value, fullName: fullName, organization: organization,
-      objective: objective, note: $("#a_note").value.trim()
+      objective: objective, recorder: recorder, note: $("#a_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#a_date").value = todayISO();
     $("#a_in").value = nowHM();
+    resetRecorder("access");
     renderAll();
     toast("บันทึกข้อมูลการเข้าออกฟาร์มแล้ว", "ok");
   });
@@ -2323,19 +2634,21 @@
     var f1 = optNum("f_f0830"), f2 = optNum("f_f1200"), f3 = optNum("f_f1600"), f4 = optNum("f_f2000");
     var t1 = optNum("f_t0830", { max: 45, msgMax: "อุณหภูมิต้องอยู่ระหว่าง 0-45 °C" });
     var t2 = optNum("f_t1500", { max: 45, msgMax: "อุณหภูมิต้องอยู่ระหว่าง 0-45 °C" });
-    if (!date || !pond || [age, f1, f2, f3, f4, t1, t2].indexOf(undefined) !== -1) {
+    var recorder = readRecorder("feed");
+    if (!date || !pond || [age, f1, f2, f3, f4, t1, t2].indexOf(undefined) !== -1 || !recorder) {
       focusFirstBad(this);
       return;
     }
     DB.feed.push({
       id: uid(), date: date, pond: pond, age: age,
       feed0830: f1, feed1200: f2, feed1600: f3, feed2000: f4,
-      temp0830: t1, temp1500: t2, note: $("#f_note").value.trim()
+      temp0830: t1, temp1500: t2, recorder: recorder, note: $("#f_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#f_date").value = todayISO();
     $("#f_pond").value = pond;
+    resetRecorder("feed");
     updateFeedTotal();
     renderAll();
     toast("บันทึกการให้อาหารและอุณหภูมิแล้ว", "ok");
@@ -2348,7 +2661,8 @@
     var pond = reqText("h_pond", "เลขที่บ่อ");
     var d1 = optNum("h_dead0830", { max: 1000000, msgMax: "จำนวนมากเกินไป" });
     var d2 = optNum("h_dead1600", { max: 1000000, msgMax: "จำนวนมากเกินไป" });
-    if (!date || !pond || d1 === undefined || d2 === undefined) {
+    var recorder = readRecorder("health");
+    if (!date || !pond || d1 === undefined || d2 === undefined || !recorder) {
       focusFirstBad(this);
       return;
     }
@@ -2356,12 +2670,13 @@
       id: uid(), date: date, pond: pond,
       gut0830: $("#h_gut0830").value, white0830: $("#h_white0830").value, dead0830: d1,
       gut1600: $("#h_gut1600").value, white1600: $("#h_white1600").value, dead1600: d2,
-      feedManagement: $("#h_feed").value, note: $("#h_note").value.trim()
+      feedManagement: $("#h_feed").value, recorder: recorder, note: $("#h_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#h_date").value = todayISO();
     $("#h_pond").value = pond;
+    resetRecorder("health");
     renderAll();
     toast("บันทึกสุขภาพสัตว์น้ำแล้ว", "ok");
   });
@@ -2378,20 +2693,22 @@
     var mg = optNum("w_mg");
     var ca = optNum("w_ca");
     var sal = optNum("w_sal", { max: 60, msgMax: "ค่าความเค็มต้องอยู่ระหว่าง 0-60 ppt" });
-    if (!date || !pond || [nh3, no2, dox, ph, mg, ca, sal].indexOf(undefined) !== -1) {
+    var recorder = readRecorder("water");
+    if (!date || !pond || [nh3, no2, dox, ph, mg, ca, sal].indexOf(undefined) !== -1 || !recorder) {
       focusFirstBad(this);
       return;
     }
     DB.water.push({
       id: uid(), date: date, time: $("#w_time").value || "", pond: pond,
       ammonia: nh3, nitrite: no2, dox: dox, ph: ph, magnesium: mg, calcium: ca, salinity: sal,
-      note: $("#w_note").value.trim()
+      recorder: recorder, note: $("#w_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#w_date").value = todayISO();
     $("#w_time").value = nowHM();
     $("#w_pond").value = pond;
+    resetRecorder("water");
     renderAll();
     toast("บันทึกคุณภาพน้ำแล้ว", "ok");
   });
@@ -2404,7 +2721,8 @@
     var chem = reqText("mw_chem", "ชนิดสารเคมี");
     var qty = optNum("mw_qty");
     var volume = optNum("mw_volume");
-    if (!date || !pond || !chem || qty === undefined || volume === undefined) {
+    var recorder = readRecorder("matwater");
+    if (!date || !pond || !chem || qty === undefined || volume === undefined || !recorder) {
       focusFirstBad(this);
       return;
     }
@@ -2412,13 +2730,14 @@
       id: uid(), date: date, pond: pond, chem: chem,
       brand: $("#mw_brand").value.trim(), company: $("#mw_company").value.trim(),
       reg: $("#mw_reg").value.trim(), qty: qty, volume: volume,
-      note: $("#mw_note").value.trim()
+      recorder: recorder, note: $("#mw_note").value.trim()
     });
     if (!saveAll(DB)) return;
     var keepPond = pond;
     this.reset();
     $("#mw_date").value = todayISO();
     $("#mw_pond").value = keepPond;
+    resetRecorder("matwater");
     renderAll();
     toast("บันทึกวัสดุที่ใช้ในการเตรียมน้ำแล้ว", "ok");
   });
@@ -2430,18 +2749,21 @@
     var chem = reqText("fb_chem", "ชนิดสารเคมี");
     var qty = optNum("fb_qty");
     var size = optNum("fb_size");
-    if (!date || !chem || qty === undefined || size === undefined) {
+    var recorder = readRecorder("footbath");
+    if (!date || !chem || qty === undefined || size === undefined || !recorder) {
       focusFirstBad(this);
       return;
     }
     DB.footbath.push({
       id: uid(), date: date, chem: chem,
       brand: $("#fb_brand").value.trim(), reg: $("#fb_reg").value.trim(),
-      qty: qty, size: size, place: $("#fb_place").value.trim(), note: $("#fb_note").value.trim()
+      qty: qty, size: size, place: $("#fb_place").value.trim(),
+      recorder: recorder, note: $("#fb_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#fb_date").value = todayISO();
+    resetRecorder("footbath");
     renderAll();
     toast("บันทึกวัสดุอ่างย่ำเท้าแล้ว", "ok");
   });
@@ -2452,18 +2774,21 @@
     var date = reqText("eq_date", "วันที่");
     var chem = reqText("eq_chem", "ชนิดสารเคมี");
     var qty = optNum("eq_qty");
-    if (!date || !chem || qty === undefined) {
+    var recorder = readRecorder("equipment");
+    if (!date || !chem || qty === undefined || !recorder) {
       focusFirstBad(this);
       return;
     }
     DB.equipment.push({
       id: uid(), date: date, chem: chem,
       brand: $("#eq_brand").value.trim(), reg: $("#eq_reg").value.trim(), qty: qty,
-      pond: $("#eq_pond").value.trim(), item: $("#eq_item").value.trim(), note: $("#eq_note").value.trim()
+      pond: $("#eq_pond").value.trim(), item: $("#eq_item").value.trim(),
+      recorder: recorder, note: $("#eq_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#eq_date").value = todayISO();
+    resetRecorder("equipment");
     renderAll();
     toast("บันทึกวัสดุล้างอุปกรณ์แล้ว", "ok");
   });
@@ -2476,7 +2801,8 @@
     var qty = optNum("ws_qty");
     var sal = optNum("ws_sal", { max: 60, msgMax: "ค่าความเค็มต้องอยู่ระหว่าง 0-60 ppt" });
     var ph = optNum("ws_ph", { max: 14, msgMax: "ค่า pH ต้องอยู่ระหว่าง 0-14" });
-    if (!date || !source || [qty, sal, ph].indexOf(undefined) !== -1) {
+    var recorder = readRecorder("watersource");
+    if (!date || !source || [qty, sal, ph].indexOf(undefined) !== -1 || !recorder) {
       focusFirstBad(this);
       return;
     }
@@ -2484,11 +2810,12 @@
       id: uid(), date: date, source: source, pond: $("#ws_pond").value.trim(),
       qty: qty, salinity: sal, ph: ph,
       treatment: $("#ws_treat").value.trim(), result: $("#ws_result").value,
-      note: $("#ws_note").value.trim()
+      recorder: recorder, note: $("#ws_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#ws_date").value = todayISO();
+    resetRecorder("watersource");
     renderAll();
     toast("บันทึกแหล่งน้ำใช้แล้ว", "ok");
   });
@@ -2501,7 +2828,8 @@
     var to = reqText("mv_to", "ปลายทาง");
     var count = optNum("mv_count", { max: 100000000, msgMax: "จำนวนมากเกินไป" });
     var weight = optNum("mv_weight");
-    if (!date || !from || !to || count === undefined || weight === undefined) {
+    var recorder = readRecorder("move");
+    if (!date || !from || !to || count === undefined || weight === undefined || !recorder) {
       focusFirstBad(this);
       return;
     }
@@ -2510,14 +2838,136 @@
       from: from, to: to, species: $("#mv_species").value.trim(),
       count: count, weight: weight, method: $("#mv_method").value.trim(),
       sender: $("#mv_sender").value.trim(), receiver: $("#mv_receiver").value.trim(),
-      doc: $("#mv_doc").value.trim(), note: $("#mv_note").value.trim()
+      doc: $("#mv_doc").value.trim(), recorder: recorder, note: $("#mv_note").value.trim()
     });
     if (!saveAll(DB)) return;
     this.reset();
     $("#mv_date").value = todayISO();
+    resetRecorder("move");
     renderAll();
     toast("บันทึกการเคลื่อนย้ายสัตว์น้ำแล้ว", "ok");
   });
+
+  /* ---------------- ผู้บันทึกข้อมูล + ช่องลงลายมือชื่อ ---------------- */
+  var STAFF = [
+    "นายเจนณรงค์ ละอองสินธุ์",
+    "นายกฤษณ์ธนสรรค์ อินทร์บำรุง",
+    "นางสาวนฤมล เชื้อน้อย",
+    "นายบุญมี อารีเอื้อ",
+    "นางสมร สิริโภคา",
+    "นายจตุพร ปรัชญา",
+    "นางสาวชมพูนุท สามห้วย"
+  ];
+  var STAFF_OTHER = "__other__";
+  var REC_KEYS = {
+    access: "a", feed: "f", health: "h", water: "w",
+    matwater: "mw", footbath: "fb", equipment: "eq", watersource: "ws", move: "mv"
+  };
+  var REC_MODULES = Object.keys(REC_KEYS);
+  var lastRecorder = "";   // เลือกคนเดิมค้างไว้ให้บันทึกครั้งถัดไปสะดวก
+
+  function buildStaffSelects() {
+    REC_MODULES.forEach(function (m) {
+      var sel = document.getElementById(REC_KEYS[m] + "_rec");
+      if (!sel) return;
+      sel.textContent = "";
+      var ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = "-- เลือกผู้บันทึกข้อมูล --";
+      sel.appendChild(ph);
+      STAFF.forEach(function (name, i) {
+        var o = document.createElement("option");
+        o.value = name;
+        o.textContent = (i + 1) + ". " + name;
+        sel.appendChild(o);
+      });
+      var other = document.createElement("option");
+      other.value = STAFF_OTHER;
+      other.textContent = (STAFF.length + 1) + ". อื่น ๆ (ระบุชื่อ)";
+      sel.appendChild(other);
+    });
+  }
+
+  function otherFieldOf(sel) {
+    var field = sel.parentNode.parentNode.querySelector(".field-other");
+    return field;
+  }
+
+  function onRecorderChange(sel) {
+    var field = otherFieldOf(sel);
+    var isOther = sel.value === STAFF_OTHER;
+    if (field) field.hidden = !isOther;
+    sel.classList.remove("bad");
+    clearErr(sel.id);
+    if (isOther && field) {
+      var input = field.querySelector("input");
+      if (input) { input.focus(); }
+    }
+  }
+
+  /* อ่านค่าผู้บันทึกจากฟอร์ม: คืนค่า null เมื่อยังไม่กรอกครบ */
+  function readRecorder(module) {
+    var sel = document.getElementById(REC_KEYS[module] + "_rec");
+    if (!sel) return "";
+    var idOther = REC_KEYS[module] + "_rec_other";
+    if (!sel.value) {
+      setErr(sel.id, "กรุณาเลือกผู้บันทึกข้อมูล");
+      return null;
+    }
+    if (sel.value === STAFF_OTHER) {
+      var txt = (document.getElementById(idOther).value || "").trim();
+      if (!txt) {
+        setErr(idOther, "กรุณาระบุชื่อ-นามสกุลผู้บันทึก");
+        return null;
+      }
+      clearErr(idOther);
+      return txt;
+    }
+    clearErr(idOther);
+    return sel.value;
+  }
+
+  function resetRecorder(module) {
+    var sel = document.getElementById(REC_KEYS[module] + "_rec");
+    if (!sel) return;
+    var idOther = REC_KEYS[module] + "_rec_other";
+    var otherInput = document.getElementById(idOther);
+    if (lastRecorder && lastRecorder !== STAFF_OTHER && STAFF.indexOf(lastRecorder) !== -1) {
+      sel.value = lastRecorder;
+      if (otherInput) otherInput.value = "";
+    } else {
+      sel.value = "";
+    }
+    clearErr(sel.id);
+    clearErr(idOther);
+    onRecorderChange(sel);
+  }
+
+  /* เตรียมปุ่มปฏิทิน/ช่องผู้บันทึกให้ทุกฟอร์ม */
+  function initRecorderFields() {
+    buildStaffSelects();
+    REC_MODULES.forEach(function (m) {
+      var sel = document.getElementById(REC_KEYS[m] + "_rec");
+      if (!sel) return;
+      sel.addEventListener("change", function () {
+        if (sel.value && sel.value !== STAFF_OTHER) lastRecorder = sel.value;
+        onRecorderChange(sel);
+      });
+      var idOther = REC_KEYS[m] + "_rec_other";
+      var otherInput = document.getElementById(idOther);
+      if (otherInput) {
+        otherInput.addEventListener("input", function () {
+          if (otherInput.value.trim()) clearErr(idOther);
+        });
+      }
+      onRecorderChange(sel);
+    });
+  }
+
+  /* ชื่อผู้บันทึกสำหรับแสดงในตาราง */
+  function recorderCell(name) {
+    return td(name || "-", "rec-cell");
+  }
 
   /* ---------------- report / export ---------------- */
   var reportPicks = {};
@@ -2530,7 +2980,8 @@
       to: reportRangeTo,
       farm: $("#rp_farm").value.trim(),
       by: $("#rp_by").value.trim(),
-      modules: selected.length ? selected : null
+      modules: selected.length ? selected : null,
+      staff: STAFF
     };
   }
   function setRangeButtonsDisabled() {}
@@ -2837,6 +3288,7 @@
   $("#a_in").value = nowHM();
   $("#w_time").value = nowHM();
   updateFeedTotal();
+  initRecorderFields();
   renderAll();
   buildReportPicks();
   refreshReportSummary();
