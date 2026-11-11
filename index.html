@@ -11,6 +11,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Biosecurity กุ้ง">
+<meta name="theme-color" content="#075a75" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#075a75" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230a7ea4'/%3E%3Cpath d='M3 12c2-3 4.6-4.5 7.9-4.5 2.8 0 5.2 1 7.5 2.9l1.7-1.5c.5-.4 1 0 .9.6l-.4 2.9.4 2.9c.1.6-.4 1-.9.6l-1.7-1.5C15.7 15 13.3 16 10.5 16 7.2 16 4.6 14.5 2.6 11.5Z' fill='%23fff'/%3E%3C/svg%3E">
 <title>ระบบบันทึกข้อมูลฟาร์มกุ้ง Biosecurity | ศวพช.</title>
 <script>
 /* ------------------------------------------------------------------
@@ -224,6 +227,10 @@
     padding:10px 11px;min-height:44px;width:100%;
   }
   textarea{min-height:72px;resize:vertical}
+  /* Firefox / Samsung Internet: ช่องตัวเลขมีลูกศรขึ้น-ลง และย่อขนาดไม่เท่ากัน */
+  input[type=number]{-moz-appearance:textfield;appearance:textfield}
+  select{max-width:100%;text-overflow:ellipsis}
+  textarea{max-width:100%}
   input:focus,select:focus,textarea:focus{
     outline:3px solid var(--accent-soft);border-color:var(--accent);
   }
@@ -335,6 +342,16 @@
     .panel{padding-bottom:env(safe-area-inset-bottom)}
   }
   table{min-width:640px}
+  /* iOS: ช่องกรอกต้องมีฟอนต์ >= 16px ไม่งั้น Safari จะซูมหน้าจอเองเมื่อแตะ */
+  @supports (-webkit-touch-callout: none){
+    .field input,.field select,.field textarea,.dt-fallback .dt-a,
+    .list-filter select,.report-filter input,.report-filter select{font-size:16px}
+  }
+  /* โหมดมืดของระบบ (iPhone/Android/Windows/macOS): พื้นที่ที่ระบบวาดเองไม่ให้กลายเป็นสีดำ */
+  @media (prefers-color-scheme: dark){
+    html{color-scheme:light}
+    input,select,textarea,.dt-fallback .dt-a{color-scheme:light;color:var(--text)}
+  }
   @media(hover:hover) and (pointer:fine){
     .module:hover{border-color:var(--accent);transform:translateY(-1px)}
     .exp:hover{border-color:var(--accent)}
@@ -362,6 +379,20 @@
   }
   .pick:hover{background:var(--surface-2)}
   .pick input{width:18px;height:18px;min-height:0;accent-color:var(--accent);margin:0;flex:0 0 auto}
+  /* ช่องทำเครื่องหมายแบบกำหนดเอง: ให้เหมือนกันทุกเบราว์เซอร์/ทุกแพลตฟอร์ม
+     (Safari บน iPhone/iPad ไม่ขยายช่องติ๊กให้กดง่าย ถ้าไม่ตั้งค่าเอง) */
+  .pick input[type="checkbox"]{
+    -webkit-appearance:none;appearance:none;
+    width:22px;height:22px;flex:0 0 22px;border:2px solid #9db0ba;border-radius:6px;
+    background:#fff;position:relative;cursor:pointer;
+  }
+  .pick input[type="checkbox"]:checked{border-color:var(--accent);background:var(--accent)}
+  .pick input[type="checkbox"]:checked::after{
+    content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;
+    border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+  }
+  .pick input[type="checkbox"]:focus-visible{outline:3px solid rgba(10,126,164,.35);outline-offset:2px}
+  .pick:has(input[type="checkbox"]:checked){border-color:var(--accent);background:var(--accent-soft)}
   .pick .cnt{margin-left:auto;font-size:.75rem;font-weight:700;color:var(--muted)}
   .export-grid{display:grid;grid-template-columns:1fr;gap:10px}
   @media(min-width:700px){.export-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -2224,6 +2255,10 @@
     if (box) box.classList.remove("show");
     var el = document.getElementById(id);
     if (el) el.classList.remove("bad");
+    if (el && el._dtPicker) {
+      el._dtPicker.classList.remove("bad");
+      try { el._dtPicker.removeAttribute("title"); } catch (e2) {}
+    }
   }
   function setErr(id, msg) {
     var box = document.querySelector('.err[data-err="' + id + '"]');
@@ -2233,6 +2268,11 @@
     }
     var el = document.getElementById(id);
     if (el) el.classList.add("bad");
+    // ช่องวันที่ที่ถูกแปลงเป็นช่องข้อความ: แสดงข้อความสีแดงแทนกล่อง error
+    if (el && el._dtPicker && msg) {
+      el._dtPicker.classList.add("bad");
+      try { el._dtPicker.setAttribute("title", msg); } catch (e2) {}
+    }
   }
   function reqText(id, label) {
     var v = (document.getElementById(id).value || "").trim();
@@ -3128,10 +3168,9 @@
     pendingImport = null;
     var f = this.files && this.files[0];
     if (!f) { fileInfo(); return; }
-    var reader = new FileReader();
-    reader.onload = function () {
+    function done(text) {
       try {
-        var parsed = BioReport.parseJsonFile(String(reader.result));
+        var parsed = BioReport.parseJsonFile(text);
         pendingImport = { name: f.name, size: f.size, data: parsed };
         fileInfo();
         if (parsed.warnings.length) {
@@ -3145,9 +3184,22 @@
         fileInfo();
         toast("ไฟล์ JSON ไม่ถูกต้อง: " + e.message, "err");
       }
-    };
-    reader.onerror = function () { toast("อ่านไฟล์ไม่สำเร็จ", "err"); };
-    reader.readAsText(f, "utf-8");
+    }
+    // 1) เบราว์เซอร์มาตรฐาน
+    if (typeof FileReader !== "undefined" && f.text) {
+      f.text().then(done).catch(function () { toast("อ่านไฟล์ไม่สำเร็จ", "err"); });
+      return;
+    }
+    // 2) Safari รุ่นเก่า / WebView ที่ FileReader ไม่ครบ
+    if (typeof FileReader !== "undefined") {
+      var reader = new FileReader();
+      reader.onload = function () { done(String(reader.result)); };
+      reader.onerror = function () { toast("อ่านไฟล์ไม่สำเร็จ", "err"); };
+      try { reader.readAsText(f, "utf-8"); }
+      catch (e) { toast("เบราว์เซอร์นี้ไม่รองรับการอ่านไฟล์ กรุณาใช้ Chrome/Safari รุ่นใหม่", "err"); }
+      return;
+    }
+    toast("เบราว์เซอร์นี้ไม่รองรับการนำเข้าไฟล์", "err");
   });
 
   $("#btnImport").addEventListener("click", function () {
@@ -3250,6 +3302,7 @@
     });
     el.style.display = "none";
     picker._setISO = syncFromISO;
+    el._dtPicker = picker;          // ให้ clearErr/setErr รู้จักช่องวันที่ทดแทน
   }
   function upgradeTimeInput(el) {
     if (!el || el.dataset.upgraded) return;
@@ -3258,18 +3311,27 @@
     el.setAttribute("inputmode", "numeric");
     el.setAttribute("placeholder", "ชม:นน");
     el.setAttribute("maxlength", "5");
-    el.addEventListener("blur", function () {
-      var v = el.value.replace(/[๐-๙]/g, function (ch) {
+    function normalise(commit) {
+      var v = String(el.value || "").replace(/[๐-๙]/g, function (ch) {
         return String.fromCharCode(ch.charCodeAt(0) - 0x0E50 + 48);
-      }).replace(/[^0-9]/g, "");
+      }).replace(/[^0-9:]/g, "");
       if (!v) { el.value = ""; return; }
-      if (v.length === 4) v = v.slice(0, 2) + ":" + v.slice(2);
+      if (v.indexOf(".") !== -1) v = v.replace(".", ":");
+      var digits = v.replace(/[^0-9]/g, "");
+      if (digits.length === 4) v = digits.slice(0, 2) + ":" + digits.slice(2);
+      else if (digits.length === 3) v = digits.slice(0, 1) + ":" + digits.slice(1);
       var m = v.match(/^(\d{1,2}):(\d{2})$/);
       if (m && parseInt(m[1], 10) < 24 && parseInt(m[2], 10) < 60) {
         el.value = String(parseInt(m[1], 10)).padStart(2, "0") + ":" + m[2];
+      } else if (commit) {
+        el.value = digits;
       }
-    });
+    }
+    el.addEventListener("input", function () { normalise(false); });
+    el.addEventListener("blur", function () { normalise(true); });
   }
+  /* Android/Chrome บางรุ่น: input[type=time] มีอยู่แต่กล่องเลือกเป็น 24 ชม. ไม่ครบ
+     และบาง WebView ไม่มีปุ่มเลือกเวลา - ไม่เป็นไร ยังพิมพ์ ชม:นน ได้ตามปกติ */
   var FALLBACK = document.documentElement.className.indexOf("picker-fallback") !== -1;
   if (FALLBACK) {
     $all('input[type="date"]').forEach(upgradeDateInput);
@@ -3284,6 +3346,13 @@
 
   ["a_date", "f_date", "h_date", "w_date", "mw_date", "fb_date", "eq_date", "ws_date", "mv_date"].forEach(function (id) {
     setDateValue(id, todayISO());
+  });
+  // ปุ่มเลือกวันของตัวกรองรายงาน ก็ต้องรองรับ fallback ด้วย
+  ["rp_from", "rp_to"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("change", function () {
+      if (this._setISO) this._setISO(this.value);
+    });
   });
   $("#a_in").value = nowHM();
   $("#w_time").value = nowHM();

@@ -302,39 +302,61 @@ window.BioReport = (function () {
 
   function download(blob, filename) {
     var nav = window.navigator || {};
-    var isIOS = /iPad|iPhone|iPod/.test(nav.userAgent || "") ||
-                (nav.platform === "MacIntel" && (nav.maxTouchPoints || 0) > 1);
+    var ua = nav.userAgent || "";
+    var isIOS = /iPad|iPhone|iPod/.test(ua) ||
+                (nav.platform === "MacIntel" && (nav.maxTouchPoints || 0) > 1) ||
+                (/Macintosh/.test(ua) && (nav.maxTouchPoints || 0) > 1);
+    var isAndroid = /Android/i.test(ua);
+    var isSafari = /Safari/i.test(ua) && !/Chrome|CriOS|Edg|OPR|SamsungBrowser/i.test(ua);
+    var isTouch = (nav.maxTouchPoints || 0) > 0 || "ontouchstart" in window;
+    var canShareFiles = !!(nav.canShare && typeof File === "function");
     var url = null;
     try { url = URL.createObjectURL(blob); } catch (e) { url = null; }
 
-    // 1) Chrome / Edge / Android / iPadOS 14+ : ใช้ Web Share (บันทึกไปยังไฟล์/Files ได้ดีที่สุด)
-    if (isIOS && url && nav.canShare && typeof File === "function") {
+    // 1) หน้าต่างแชร์ไฟล์ของระบบ (iPhone/iPad และ Android): บันทึกเข้าแอป "ไฟล์" ได้
+    //    - iOS ทุกเบราว์เซอร์: ต้องใช้เส้นทางนี้ (Safari ไม่รองรับ a[download] ข้ามไฟล์)
+    //    - Android/iPadOS: ใช้เมื่อไฟล์ถูกสั่งแชร์ได้จริง ถ้าไม่ได้ให้ลงมาทางดาวน์โหลดปกติ
+    if (url && canShareFiles) {
       var file = null;
-      try { file = new File([blob], filename, { type: blob.type || "application/octet-stream" }); } catch (e) { file = null; }
-      if (file && nav.canShare({ files: [file] })) {
-        nav.share({ files: [file], title: filename }).then(function () {
-          setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-        }).catch(function () {
-          legacyDownload(url, filename);
-        });
-        return;
+      try { file = new File([blob], filename, { type: blob.type || "application/octet-stream" }); } catch (e2) { file = null; }
+      if (file) {
+        var can = false;
+        try { can = !!nav.canShare({ files: [file] }); } catch (e3) { can = false; }
+        // Safari เดสก์ท็อป/iPad ที่มี canShare จะได้หน้าต่างแชร์เหมือนกัน ซึ่งบันทึกไฟล์ได้ง่ายกว่าดาวน์โหลด
+        if (can && (isIOS || isAndroid || isSafari || isTouch)) {
+          nav.share({ files: [file], title: filename }).then(function () {
+            setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+          }).catch(function (err) {
+            // ผู้ใช้กดยกเลิก = ไม่ต้องดาวน์โหลดซ้ำ ; กรณีอื่นให้ใช้เส้นทางสำรอง
+            if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) {
+              setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            } else {
+              legacyDownload(url, filename);
+            }
+          });
+          return;
+        }
       }
     }
 
-    // 2) วิธีมาตรฐาน (ทุกแพลตฟอร์มที่เหลือ)
+    // 2) วิธีมาตรฐาน (Windows, macOS, Linux, ChromeOS, Android, iPadOS)
     if (!url) {
-      // เบราว์เซอร์ไม่รองรับ Blob URL: ใช้ data URL แทน
-      var reader = new FileReader();
-      reader.onload = function () {
-        var a = document.createElement("a");
-        a.href = String(reader.result);
-        a.download = filename;
-        a.rel = "noopener";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 1500);
-      };
-      reader.readAsDataURL(blob);
+      // เบราว์เซอร์ไม่รองรับ Blob URL (WebView รุ่นเก่า): ใช้ data URL แทน
+      try {
+        var reader = new FileReader();
+        reader.onload = function () {
+          var a = document.createElement("a");
+          a.href = String(reader.result);
+          a.download = filename;
+          a.rel = "noopener";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 1500);
+        };
+        reader.readAsDataURL(blob);
+      } catch (e4) {
+        window.alert("เบราว์เซอร์นี้ไม่รองรับการดาวน์โหลดไฟล์ กรุณาเปิดด้วย Chrome หรือ Safari รุ่นใหม่");
+      }
       return;
     }
     legacyDownload(url, filename);
@@ -355,9 +377,8 @@ window.BioReport = (function () {
     }, 4000);
   }
 
-  /* ------------------------------------------------------------
-     4) คำนวณชุดข้อมูลตามเงื่อนไข
-     ------------------------------------------------------------ */
+  /* จัดชุดข้อมูลให้เอนจินสร้างไฟล์อ่านได้ง่ายบนเครื่องทุกแพลตฟอร์ม
+     (เปิดใน MS Office / WPS / LibreOffice / Pages / Google Sheets / Numbers) */
   function inRange(r, from, to) {
     var d = r.date || "";
     if (from && d && d < from) return false;
@@ -502,6 +523,13 @@ window.BioReport = (function () {
   }
 
   function openPrintWindow(data, autoPrint) {
+    var nav = window.navigator || {};
+    var ua = nav.userAgent || "";
+    var isIOS = /iPad|iPhone|iPod/.test(ua) ||
+                (nav.platform === "MacIntel" && (nav.maxTouchPoints || 0) > 1) ||
+                (/Macintosh/.test(ua) && (nav.maxTouchPoints || 0) > 1);
+    // Safari บน iPhone/iPad และ Chrome บน Android มักไม่เปิดหน้าต่างใหม่ = ใช้รายงานในหน้าเดิมเสมอ
+    if (isIOS) return inlinePrint(data);
     var w = null;
     try { w = window.open("", "_blank"); } catch (e) { w = null; }
     var css =
@@ -531,10 +559,23 @@ window.BioReport = (function () {
       w.document.write('<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">' +
         '<meta name="viewport" content="width=device-width, initial-scale=1">' +
         '<title>รายงาน Biosecurity</title><style>' + css + '</style></head><body>' +
-        '<div class="print-bar no-print"><button type="button" onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button>' +
+        '<div class="print-bar" data-noprint><button type="button" onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button>' +
         '<span>ถ้าไม่เห็นปุ่มพิมพ์ ให้กดเมนูของเบราว์เซอร์แล้วเลือก “พิมพ์”</span></div>' +
         buildReportHTML(data) + '</body></html>');
       w.document.close();
+      // ซ่อนแถบเครื่องมือเมื่อพิมพ์ (ใช้ style ในเอกสารใหม่ ไม่ต้องพึ่ง onclick)
+      try {
+        var bar = w.document.querySelector('[data-noprint]');
+        var doc = w.document;
+        var st = doc.createElement("style");
+        st.appendChild(doc.createTextNode("@media print{[data-noprint]{display:none!important}}"));
+        doc.head.appendChild(st);
+        var pr = doc.createElement("button");
+        pr.type = "button";
+        pr.textContent = "พิมพ์ / บันทึกเป็น PDF";
+        pr.addEventListener("click", function () { try { w.print(); } catch (e) {} });
+        if (bar) { bar.textContent = ""; bar.appendChild(pr); }
+      } catch (e5) {}
     } catch (e) {
       return inlinePrint(data);
     }
@@ -587,6 +628,12 @@ window.BioReport = (function () {
     bPrint.addEventListener("click", function () {
       try { window.print(); } catch (e) {}
     });
+    // ปุ่มย้อนกลับของ Android (และ Alt+←) ปิดหน้ารายงานได้
+    function onBack() {
+      close();
+      if (window.removeEventListener) window.removeEventListener("popstate", onBack);
+    }
+    if (window.addEventListener) window.addEventListener("popstate", onBack);
     close._isInlinePrint = true;
     return true;
   }
