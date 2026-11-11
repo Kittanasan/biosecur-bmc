@@ -90,6 +90,45 @@
   .brand-text{min-width:0;flex:1 1 auto;overflow-wrap:break-word}
   .brand-text .t1{font-size:1.06rem;font-weight:700;letter-spacing:.01em}
   .brand-text .t2{font-size:.78rem;opacity:.9;line-height:1.45}
+
+  /* ---------- การ์ด "รายงานผล / ส่งออก-นำเข้าข้อมูล" มุมขวาบนของหน้าจอ ---------- */
+  .appbar .wrap.appbar-top{flex-wrap:wrap;row-gap:10px}
+  .report-topbar{
+    display:flex;align-items:center;gap:14px;text-align:left;flex:0 1 auto;
+    margin-left:auto;align-self:center;
+    background:#fff;border:1px solid #e4e6eb;border-radius:18px;
+    padding:12px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04);
+    font-family:inherit;color:#0f2742;cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    max-width:460px;min-width:0;
+  }
+  .report-topbar:hover{transform:translateY(-1px);border-color:#c9c6ef;box-shadow:0 4px 14px rgba(91,79,214,.14)}
+  .report-topbar:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .report-topbar .rt-icon{
+    width:52px;height:52px;flex:0 0 auto;border-radius:14px;
+    display:grid;place-items:center;background:#e9e7fb;
+  }
+  .report-topbar .rt-icon svg{width:28px;height:28px;fill:#5b4fd6}
+  .report-topbar .rt-text{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .report-topbar .rt-title{font-size:1.02rem;font-weight:700;color:#12263a;line-height:1.35}
+  .report-topbar .rt-sub{font-size:.82rem;font-weight:400;color:#6b7280;line-height:1.4}
+  .report-topbar .rt-badge{
+    align-self:flex-start;margin-top:2px;font-size:.75rem;font-weight:600;
+    color:#0b4f6c;background:#e6f4fa;border-radius:999px;padding:2px 10px;line-height:1.5;
+  }
+  @media(max-width:767px){
+    .appbar{padding:12px 0}
+    .report-topbar{
+      width:100%;max-width:none;box-sizing:border-box;
+      margin-left:0;margin-top:2px;padding:10px 14px;gap:12px;
+    }
+    .report-topbar .rt-icon{width:44px;height:44px;border-radius:12px}
+    .report-topbar .rt-icon svg{width:24px;height:24px}
+    .report-topbar .rt-title{font-size:.95rem}
+    .report-topbar .rt-sub{font-size:.76rem}
+    .report-topbar .rt-badge{font-size:.7rem}
+  }
+
   main{padding:20px 0 64px}
   .page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px;flex-wrap:wrap}
   .page-head .sub{color:var(--muted);font-size:.88rem}
@@ -476,7 +515,7 @@
 </head>
 <body>
 <header class="appbar">
-  <div class="wrap">
+  <div class="wrap appbar-top">
     <div class="brand-badge" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M2 12c2.2-3.4 5.1-5 8.7-5 3.1 0 5.7 1.1 8.3 3.2l1.9-1.6c.5-.4 1.1 0 1 .6l-.5 3.2.5 3.2c.1.6-.5 1-.98.6l-1.9-1.6C16.4 15.9 13.8 17 10.7 17 7.1 17 4.2 15.4 2 12Zm4.6-.9a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2Z"/></svg>
     </div>
@@ -484,6 +523,17 @@
       <div class="t1">ระบบบันทึกข้อมูลการเลี้ยงกุ้ง (Biosecurity)</div>
       <div class="t2">ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา</div>
     </div>
+
+    <button class="report-topbar" data-open="report" type="button" aria-label="รายงานผล / ส่งออก-นำเข้าข้อมูล">
+      <span class="rt-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 3h9l5 5v13H5V3Zm2 2v14h10V9h-4V5H7Zm2 7h6v2H9v-2Zm0 4h6v2H9v-2Zm0-8h2v2H9V8Z"/><path d="M17.6 14.2h2.8v2.6h-2.8v2.4l-3.4-3.7 3.4-3.7v2.4Z"/></svg>
+      </span>
+      <span class="rt-text">
+        <span class="rt-title">รายงานผล / ส่งออก-นำเข้าข้อมูล</span>
+        <span class="rt-sub">สร้างไฟล์ Word, PDF, Excel, PowerPoint และ JSON (นำเข้า-ส่งออกข้อมูลสำรอง)</span>
+        <span class="rt-badge">5 รูปแบบไฟล์</span>
+      </span>
+    </button>
   </div>
 </header>
 
@@ -654,23 +704,6 @@
       </div>
     </div>
 
-    <div class="module-group">
-      <div class="group-title">รายงานผลและการส่งออกข้อมูล <span class="pill">5 รูปแบบไฟล์</span></div>
-      <div class="modules">
-
-      <button class="module ico-10" data-open="report" type="button">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M5 3h9l5 5v13H5V3Zm2 2v14h10V9h-4V5H7Zm2 7h6v2H9v-2Zm0 4h6v2H9v-2Zm0-8h2v2H9V8Z"/><path d="M17.6 14.2h2.8v2.6h-2.8v2.4l-3.4-3.7 3.4-3.7v2.4Z"/></svg>
-        </span>
-        <span>
-          <span class="m-title">รายงานผล / ส่งออก-นำเข้าข้อมูล</span>
-          <span class="m-desc">สร้างไฟล์ Word, PDF, Excel, PowerPoint และ JSON (นำเข้า-ส่งออกข้อมูลสำรอง)</span>
-          <span class="m-count" id="cntReport">5 รูปแบบไฟล์</span>
-        </span>
-      </button>
-
-      </div>
-    </div>
   </section>
 </main>
 
