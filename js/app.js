@@ -1544,6 +1544,11 @@
   buildReportPicks();
   refreshReportSummary();
 
+  /* ขอให้เบราว์เซอร์เก็บข้อมูลถาวร (Safari บน iPhone/iPad อาจลบข้อมูลเว็บที่ไม่ได้เปิดนานถ้าไม่ขอ) */
+  try {
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+  } catch (e) {}
+
   /* ติดตั้งเป็นแอป/ใช้ออฟไลน์: ลงทะเบียน service worker (ใช้ได้เฉพาะ https หรือ localhost) */
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
     window.addEventListener("load", function () {

@@ -869,6 +869,29 @@
 
   .choice-other{margin-top:8px}
 
+  /* ---------- ใช้ได้ทุกอุปกรณ์: รอยบากจอ/แถบสถานะ (iPhone ที่ติดตั้งเป็นแอป), ปัดดึงรีเฟรช ---------- */
+  .panel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}   /* กันปัดดึงรีเฟรชหน้าตอนเลื่อนในแผง (ฟอร์มที่กรอกค้างจะไม่หาย) */
+  @supports (padding: env(safe-area-inset-top)){
+    .appbar{
+      padding-top:calc(16px + env(safe-area-inset-top));
+      padding-left:env(safe-area-inset-left);
+      padding-right:env(safe-area-inset-right);
+    }
+    .wrap{
+      padding-left:max(16px, env(safe-area-inset-left));
+      padding-right:max(16px, env(safe-area-inset-right));
+    }
+    .panel-body{padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+    .toast{bottom:calc(22px + env(safe-area-inset-bottom))}
+    @media(max-width:819px){
+      .panel-head{
+        padding-top:calc(14px + env(safe-area-inset-top));
+        padding-left:max(16px, env(safe-area-inset-left));
+        padding-right:max(16px, env(safe-area-inset-right));
+      }
+    }
+  }
+
   /* ช่องที่ตั้ง hidden ต้องซ่อนจริง แม้คลาสจะกำหนด display ไว้ (เช่น .field{display:flex}) */
   [hidden]{display:none!important}
 
