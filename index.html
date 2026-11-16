@@ -853,6 +853,18 @@
   .mini.edit.on{background:#fff1d6;border-color:#f0c36d;color:#7a4b00}
   tbody tr.row-editing,tbody tr.row-editing:hover{background:#fff7e6}
 
+  /* ปุ่ม "กลับ" ที่หัวแผงฟอร์ม */
+  .btn-back{
+    display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;
+    min-height:44px;padding:0 14px 0 8px;border-radius:12px;cursor:pointer;
+    border:1px solid #bfdde9;background:var(--accent-soft);color:var(--accent-dark);
+    font-family:inherit;font-size:.92rem;font-weight:700;
+  }
+  .btn-back svg{width:22px;height:22px;fill:currentColor}
+  .btn-back:hover{background:#d3ebf4}
+  .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  @media(max-width:420px){ .panel-head{gap:8px;padding:12px} .btn-back{padding:0 10px 0 6px} }
+
   /* ช่องที่ตั้ง hidden ต้องซ่อนจริง แม้คลาสจะกำหนด display ไว้ (เช่น .field{display:flex}) */
   [hidden]{display:none!important}
 

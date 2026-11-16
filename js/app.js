@@ -168,7 +168,7 @@
   var overlay = byId("overlay");
   var openPanelId = null;
   function openPanel(name) {
-    closeAllPanels();
+    hidePanels();
     var p = byId("panel-" + name);
     if (!p) return;
     if (name === "report") { buildReportPicks(); refreshReportSummary(); }
@@ -178,17 +178,41 @@
     openPanelId = name;
     document.body.style.overflow = "hidden";
     p.scrollTop = 0;
-    var first = p.querySelector("input, select, textarea, button");
+    // ให้ปุ่มย้อนกลับของมือถือ/เบราว์เซอร์ปิดแผงกลับมาหน้าเมนู (แทนที่จะออกจากเว็บ)
+    try {
+      var st = { panel: name };
+      if (history.state && history.state.panel) history.replaceState(st, "");
+      else history.pushState(st, "");
+    } catch (e) {}
+    var first = p.querySelector("input, select, textarea, button:not(.btn-back)");
     if (first) first.focus();
   }
-  function closeAllPanels() {
+  function hidePanels() {
     $all(".panel.open").forEach(function (p) { p.classList.remove("open"); });
     overlay.classList.remove("open");
     document.body.style.overflow = "";
     openPanelId = null;
   }
+  /* ปิดแผงจากปุ่ม/Esc/พื้นหลัง: ถ้าเปิดไว้ด้วย history ให้ย้อนกลับ 1 ก้าว (popstate จะปิดให้) */
+  function closeAllPanels() {
+    var viaHistory = false;
+    try { viaHistory = !!(openPanelId && history.state && history.state.panel); } catch (e) {}
+    if (viaHistory) { try { history.back(); return; } catch (e2) {} }
+    hidePanels();
+  }
+  window.addEventListener("popstate", hidePanels);
   $all("[data-open]").forEach(function (btn) {
     btn.addEventListener("click", function () { openPanel(btn.getAttribute("data-open")); });
+  });
+  /* ปุ่ม "กลับ" ที่หัวทุกแผง (กลับไปหน้าเมนูเพื่อเลือกบันทึกส่วนอื่น) */
+  $all(".panel-head").forEach(function (head) {
+    var back = document.createElement("button");
+    back.type = "button";
+    back.className = "btn-back";
+    back.setAttribute("aria-label", "กลับไปหน้าเมนูบันทึกข้อมูล");
+    back.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg><span>กลับ</span>';
+    back.addEventListener("click", closeAllPanels);
+    head.insertBefore(back, head.firstChild);
   });
   $all("[data-close]").forEach(function (btn) { btn.addEventListener("click", closeAllPanels); });
   overlay.addEventListener("click", closeAllPanels);
