@@ -867,6 +867,8 @@
   .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   @media(max-width:420px){ .panel-head{gap:8px;padding:12px} .btn-back{padding:0 10px 0 6px} }
 
+  .choice-other{margin-top:8px}
+
   /* ช่องที่ตั้ง hidden ต้องซ่อนจริง แม้คลาสจะกำหนด display ไว้ (เช่น .field{display:flex}) */
   [hidden]{display:none!important}
 
@@ -1152,18 +1154,24 @@
         </div>
         <div class="field">
           <label for="a_name">ชื่อ - นามสกุล <span class="req">*</span></label>
-          <input type="text" id="a_name" name="fullName" placeholder="เช่น นายสมชาย ใจดี" autocomplete="name" required>
-          <div class="err" data-err="a_name">กรุณาระบุชื่อ-นามสกุล</div>
+          <select id="a_name" class="choice-select" required></select>
+          <input type="text" id="a_name_other" class="choice-other" placeholder="ระบุชื่อ - นามสกุล" autocomplete="off" hidden>
+          <div class="err" data-err="a_name">กรุณาเลือกชื่อ-นามสกุล</div>
+          <div class="err" data-err="a_name_other">กรุณาระบุชื่อ-นามสกุล</div>
         </div>
         <div class="field">
           <label for="a_org">หน่วยงาน / ที่ทำงาน <span class="req">*</span></label>
-          <input type="text" id="a_org" name="organization" placeholder="เช่น ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา" required>
-          <div class="err" data-err="a_org">กรุณาระบุหน่วยงาน</div>
+          <select id="a_org" class="choice-select" required></select>
+          <input type="text" id="a_org_other" class="choice-other" placeholder="ระบุหน่วยงาน / ที่ทำงาน" autocomplete="off" hidden>
+          <div class="err" data-err="a_org">กรุณาเลือกหน่วยงาน</div>
+          <div class="err" data-err="a_org_other">กรุณาระบุหน่วยงาน</div>
         </div>
         <div class="field full">
           <label for="a_objective">วัตถุประสงค์การเข้าฟาร์ม <span class="req">*</span></label>
-          <input type="text" id="a_objective" name="objective" placeholder="เช่น ตรวจสุขภาพกุ้ง / ส่งอาหาร / เยี่ยมชมงานวิจัย" required>
-          <div class="err" data-err="a_objective">กรุณาระบุวัตถุประสงค์</div>
+          <select id="a_objective" class="choice-select" required></select>
+          <input type="text" id="a_objective_other" class="choice-other" placeholder="ระบุวัตถุประสงค์" autocomplete="off" hidden>
+          <div class="err" data-err="a_objective">กรุณาเลือกวัตถุประสงค์</div>
+          <div class="err" data-err="a_objective_other">กรุณาระบุวัตถุประสงค์</div>
         </div>
         <div class="field full">
           <label for="a_note">หมายเหตุ</label>

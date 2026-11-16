@@ -372,9 +372,9 @@
         { k: "timeIn", id: "a_in", req: "เวลาเข้า" },
         { k: "timeOut", id: "a_out" },
         { k: "type", id: "a_type" },
-        { k: "fullName", id: "a_name", req: "ชื่อ-นามสกุล" },
-        { k: "organization", id: "a_org", req: "หน่วยงาน/ที่ทำงาน" },
-        { k: "objective", id: "a_objective", req: "วัตถุประสงค์การเข้าฟาร์ม" },
+        { k: "fullName", id: "a_name", req: "ชื่อ-นามสกุล", choice: true },
+        { k: "organization", id: "a_org", req: "หน่วยงาน/ที่ทำงาน", choice: true },
+        { k: "objective", id: "a_objective", req: "วัตถุประสงค์การเข้าฟาร์ม", choice: true },
         { k: "note", id: "a_note" }
       ],
       check: function (rec) {
@@ -765,6 +765,7 @@
 
   /* ---------- บันทึกฟอร์ม ---------- */
   function readField(f) {
+    if (f.choice) return readChoice(f);
     if (f.req) return reqText(f.id, f.req);                       // null = ยังไม่กรอก
     if (f.num) return optNum(f.id, f.num === true ? {} : f.num);  // undefined = ไม่ถูกต้อง
     var el = byId(f.id);
@@ -848,6 +849,7 @@
       var v = rec[f.k];
       if (v === null || v === undefined) v = "";
       var el = byId(f.id);
+      if (f.choice) { fillChoice(f.id, String(v)); return; }
       if (f.k === "date") setDateValue(f.id, String(v));
       else {
         // ค่าเก่าที่ไม่อยู่ในตัวเลือกปัจจุบัน (เช่น ตัวเลือกที่เคยใช้) ให้เพิ่มเป็นตัวเลือกชั่วคราว จะได้ไม่หายตอนแก้ไข
@@ -895,6 +897,7 @@
     if (m === "water") byId("w_time").value = nowHM();
     if (m === "feed") updateFeedTotal();
     resetRecorder(m);
+    MOD[m].fields.forEach(function (f) { if (f.choice) fillChoice(f.id, ""); });
     clearFormErrors(formOf(m));
   }
 
@@ -920,6 +923,84 @@
     byId(id).addEventListener("input", updateFeedTotal);
   });
 
+  /* ================================================================
+     ช่องแบบ "เลือกจากรายการ หรือ อื่น ๆ (ระบุ)" — ใช้ในฟอร์มควบคุมการเข้าออก
+     ค่าที่เก็บเป็นข้อความเสมอ (ชื่อที่เลือก หรือข้อความที่พิมพ์) จึงใช้กับตาราง/รายงานเดิมได้ทันที
+     ================================================================ */
+  var CHOICE_OTHER = "__other__";
+  var ORG_CENTER = "ศูนย์วิจัยและพัฒนาการเพาะเลี้ยงสัตว์น้ำชายฝั่งฉะเชิงเทรา";
+  var CHOICES = {
+    a_name: { items: function () { return STAFF; }, placeholder: "-- เลือกชื่อ - นามสกุล --", otherLabel: "อื่น ๆ (ระบุชื่อ)", numbered: true },
+    a_org: { items: function () { return [ORG_CENTER]; }, placeholder: "-- เลือกหน่วยงาน --", otherLabel: "อื่น ๆ (ระบุ)" },
+    a_objective: { items: function () { return ["ปฏิบัติงาน", "เก็บตัวอย่าง", "เยี่ยมชม"]; }, placeholder: "-- เลือกวัตถุประสงค์ --", otherLabel: "อื่น ๆ (ระบุ)" }
+  };
+  function showChoiceOther(id) {
+    var sel = byId(id), other = byId(id + "_other");
+    if (!sel || !other) return;
+    other.hidden = sel.value !== CHOICE_OTHER;
+  }
+  /* เติมตัวเลือก (คงค่าที่เลือกไว้ ถ้ายังมีอยู่ในรายการ — และตามชื่อที่ถูกแก้ในหน้ารายชื่อ) */
+  function buildChoiceOptions(id, renameFrom, renameTo) {
+    var cfg = CHOICES[id], sel = byId(id);
+    if (!cfg || !sel) return;
+    var items = cfg.items();
+    var cur = sel.value;
+    if (renameFrom && cur === renameFrom) cur = renameTo;
+    sel.textContent = "";
+    var ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = cfg.placeholder;
+    sel.appendChild(ph);
+    items.forEach(function (name, i) {
+      var o = document.createElement("option");
+      o.value = name;
+      o.textContent = cfg.numbered ? (i + 1) + ". " + name : name;
+      sel.appendChild(o);
+    });
+    var other = document.createElement("option");
+    other.value = CHOICE_OTHER;
+    other.textContent = cfg.numbered ? (items.length + 1) + ". " + cfg.otherLabel : cfg.otherLabel;
+    sel.appendChild(other);
+    sel.value = (cur === CHOICE_OTHER || items.indexOf(cur) !== -1) ? cur : "";
+    showChoiceOther(id);
+  }
+  /* ตั้งค่าช่อง: ค่าที่อยู่ในรายการ -> เลือกรายการนั้น, ค่าอื่น (เช่น ข้อมูลเก่าที่พิมพ์เอง) -> "อื่น ๆ" พร้อมข้อความ */
+  function fillChoice(id, value) {
+    var sel = byId(id), other = byId(id + "_other");
+    var items = CHOICES[id].items();
+    if (!value) { sel.value = ""; other.value = ""; }
+    else if (items.indexOf(value) !== -1) { sel.value = value; other.value = ""; }
+    else { sel.value = CHOICE_OTHER; other.value = value; }
+    showChoiceOther(id);
+    clearErr(id);
+    clearErr(id + "_other");
+  }
+  function readChoice(f) {
+    var sel = byId(f.id), other = byId(f.id + "_other");
+    if (!sel.value) { setErr(f.id, "กรุณาเลือก" + f.req); return null; }
+    clearErr(f.id);
+    if (sel.value === CHOICE_OTHER) {
+      var txt = (other.value || "").trim();
+      if (!txt) { setErr(f.id + "_other", "กรุณาระบุ" + f.req); return null; }
+      clearErr(f.id + "_other");
+      return txt;
+    }
+    clearErr(f.id + "_other");
+    return sel.value;
+  }
+  function initChoices() {
+    Object.keys(CHOICES).forEach(function (id) {
+      buildChoiceOptions(id);
+      byId(id).addEventListener("change", function () {
+        clearErr(id);
+        showChoiceOther(id);
+        if (byId(id).value === CHOICE_OTHER) byId(id + "_other").focus();
+      });
+      byId(id + "_other").addEventListener("input", function () {
+        if (byId(id + "_other").value.trim()) clearErr(id + "_other");
+      });
+    });
+  }
   /* ================================================================
      6) ผู้บันทึกข้อมูล + รายชื่อผู้บันทึก
      ================================================================ */
@@ -1021,6 +1102,7 @@
       sel.value = (cur === STAFF_OTHER || STAFF.indexOf(cur) !== -1) ? cur : "";
       showOther(m, false);
     });
+    buildChoiceOptions("a_name", renameFrom, renameTo);
   }
 
   /* อ่านค่าผู้บันทึก: คืน null เมื่อยังไม่กรอกครบ */
@@ -1452,6 +1534,7 @@
   }
   fillPondAndStrain();
   initRecorderFields();
+  initChoices();
   initStaffPanel();
   initFilters();
   initForms();
