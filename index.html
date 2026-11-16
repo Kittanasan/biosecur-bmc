@@ -1224,8 +1224,12 @@
         </div>
         <div class="field">
           <label for="f_pond">บ่อ <span class="req">*</span></label>
-          <input type="text" id="f_pond" name="pond" placeholder="เช่น บ่อ 1 / A3" required>
-          <div class="err" data-err="f_pond">กรุณาระบุบ่อ</div>
+          <select id="f_pond" class="pond-select" name="pond" required></select>
+          <div class="err" data-err="f_pond">กรุณาเลือกบ่อ</div>
+        </div>
+        <div class="field">
+          <label for="f_strain">สายพันธุ์</label>
+          <select id="f_strain" class="strain-select" name="strain"></select>
         </div>
         <div class="field">
           <label for="f_age">อายุกุ้ง</label>
@@ -1324,7 +1328,7 @@
       <table>
         <thead>
           <tr>
-            <th>วันที่</th><th>บ่อ</th><th class="num">อายุ (วัน)</th>
+            <th>วันที่</th><th>บ่อ</th><th>สายพันธุ์</th><th class="num">อายุ (วัน)</th>
             <th class="num">08.30</th><th class="num">12.00</th><th class="num">16.00</th><th class="num">20.00</th>
             <th class="num">รวม (ก.)</th>
             <th class="num">น้ำ 08.30 (°C)</th><th class="num">น้ำ 15.00 (°C)</th><th class="num">อากาศ เช้า (°C)</th><th class="num">อากาศ บ่าย (°C)</th>
@@ -1365,8 +1369,12 @@
         </div>
         <div class="field">
           <label for="h_pond">เลขที่บ่อ <span class="req">*</span></label>
-          <input type="text" id="h_pond" name="pond" placeholder="เช่น บ่อ 1 / A3" required>
-          <div class="err" data-err="h_pond">กรุณาระบุเลขที่บ่อ</div>
+          <select id="h_pond" class="pond-select" name="pond" required></select>
+          <div class="err" data-err="h_pond">กรุณาเลือกเลขที่บ่อ</div>
+        </div>
+        <div class="field">
+          <label for="h_strain">สายพันธุ์</label>
+          <select id="h_strain" class="strain-select" name="strain"></select>
         </div>
       </div>
 
@@ -1471,7 +1479,7 @@
       <table>
         <thead>
           <tr>
-            <th>วันที่</th><th>บ่อ</th>
+            <th>วันที่</th><th>บ่อ</th><th>สายพันธุ์</th>
             <th>ลำไส้ 08.30</th><th>การว่ายน้ำ 08.30</th><th class="num">ตาย 08.30</th>
             <th>ลำไส้ 16.00</th><th>การว่ายน้ำ 16.00</th><th class="num">ตาย 16.00</th>
             <th class="num">ตายรวม</th>
@@ -1516,8 +1524,12 @@
         </div>
         <div class="field">
           <label for="w_pond">เลขที่บ่อ <span class="req">*</span></label>
-          <input type="text" id="w_pond" name="pond" placeholder="เช่น บ่อ 1 / A3" required>
-          <div class="err" data-err="w_pond">กรุณาระบุเลขที่บ่อ</div>
+          <select id="w_pond" class="pond-select" name="pond" required></select>
+          <div class="err" data-err="w_pond">กรุณาเลือกเลขที่บ่อ</div>
+        </div>
+        <div class="field">
+          <label for="w_strain">สายพันธุ์</label>
+          <select id="w_strain" class="strain-select" name="strain"></select>
         </div>
       </div>
 
@@ -1584,7 +1596,7 @@
       <table>
         <thead>
           <tr>
-            <th>วันที่</th><th>เวลา</th><th>บ่อ</th>
+            <th>วันที่</th><th>เวลา</th><th>บ่อ</th><th>สายพันธุ์</th>
             <th class="num">NH₃ (mg/L)</th><th class="num">NO₂ (mg/L)</th><th class="num">DO (mg/L)</th>
             <th class="num">pH</th><th class="num">Mg (mg/L)</th><th class="num">Ca (mg/L)</th>
             <th class="num">ความเค็ม (ppt)</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
@@ -1624,8 +1636,8 @@
         </div>
         <div class="field">
           <label for="mw_pond">เลขบ่อ <span class="req">*</span></label>
-          <input type="text" id="mw_pond" placeholder="เช่น บ่อ 1 / A3" required>
-          <div class="err" data-err="mw_pond">กรุณาระบุเลขบ่อ</div>
+          <select id="mw_pond" class="tank-select" required></select>
+          <div class="err" data-err="mw_pond">กรุณาเลือกเลขบ่อ</div>
         </div>
         <div class="field">
           <label for="mw_chem">ชนิดสารเคมี <span class="req">*</span></label>
@@ -1894,7 +1906,7 @@
         </div>
         <div class="field">
           <label for="ws_pond">บ่อที่ใช้</label>
-          <input type="text" id="ws_pond" placeholder="เช่น บ่อ 1-4 / ทั้งฟาร์ม">
+          <select id="ws_pond" class="tank-select"></select>
         </div>
         <div class="field">
           <label for="ws_qty">ปริมาณน้ำที่ใช้</label>

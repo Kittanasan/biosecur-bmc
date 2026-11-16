@@ -248,8 +248,9 @@
     }
   }
   function reqText(id, label) {
-    var v = (byId(id).value || "").trim();
-    if (!v) { setErr(id, "กรุณาระบุ" + label); return null; }
+    var el = byId(id);
+    var v = (el.value || "").trim();
+    if (!v) { setErr(id, (el.tagName === "SELECT" ? "กรุณาเลือก" : "กรุณาระบุ") + label); return null; }
     clearErr(id);
     return v;
   }
@@ -371,10 +372,11 @@
     feed: {
       prefix: "f", form: "formFeed", dom: "Feed", badge: "feedCount", cnt: "cntFeed",
       saved: "บันทึกการให้อาหารและอุณหภูมิแล้ว",
-      sort2: ["pond", 1], keep: ["pond"],
+      sort2: ["pond", 1], keep: ["pond", "strain"],
       fields: [
         { k: "date", id: "f_date", req: "วันที่" },
         { k: "pond", id: "f_pond", req: "บ่อ" },
+        { k: "strain", id: "f_strain" },
         { k: "age", id: "f_age", num: { max: 365, msgMax: "อายุไม่ควรเกิน 365 วัน" } },
         { k: "feed0830", id: "f_f0830", num: true },
         { k: "feed1200", id: "f_f1200", num: true },
@@ -386,17 +388,18 @@
         { k: "airTemp1500", id: "f_at1500", num: NUM_TEMP },
         { k: "note", id: "f_note" }
       ],
-      cols: [D(), T("pond"), I("age"), G("feed0830"), G("feed1200"), G("feed1600"), G("feed2000"),
+      cols: [D(), T("pond"), T("strain"), I("age"), G("feed0830"), G("feed1200"), G("feed1600"), G("feed2000"),
              function (r) { return td(fmtG(feedTotal(r)), "num"); },
              N("temp0830", 1), N("temp1500", 1), N("airTemp0830", 1), N("airTemp1500", 1), REC(), T("note")]
     },
     health: {
       prefix: "h", form: "formHealth", dom: "Health", badge: "healthCount", cnt: "cntHealth",
       saved: "บันทึกสุขภาพสัตว์น้ำแล้ว",
-      sort2: ["pond", 1], keep: ["pond"],
+      sort2: ["pond", 1], keep: ["pond", "strain"],
       fields: [
         { k: "date", id: "h_date", req: "วันที่" },
         { k: "pond", id: "h_pond", req: "เลขที่บ่อ" },
+        { k: "strain", id: "h_strain" },
         { k: "gut0830", id: "h_gut0830" },
         { k: "white0830", id: "h_white0830" },
         { k: "dead0830", id: "h_dead0830", num: { max: 1000000, msgMax: "จำนวนมากเกินไป" } },
@@ -406,18 +409,19 @@
         { k: "feedManagement", id: "h_feed" },
         { k: "note", id: "h_note" }
       ],
-      cols: [D(), T("pond"), T("gut0830"), T("white0830"), I("dead0830"), T("gut1600"), T("white1600"), I("dead1600"),
+      cols: [D(), T("pond"), T("strain"), T("gut0830"), T("white0830"), I("dead0830"), T("gut1600"), T("white1600"), I("dead1600"),
              function (r) { return td(num(r.dead0830) + num(r.dead1600), "num"); },
              T("feedManagement"), REC(), T("note")]
     },
     water: {
       prefix: "w", form: "formWater", dom: "Water", badge: "waterCount", cnt: "cntWater",
       saved: "บันทึกคุณภาพน้ำแล้ว",
-      sort2: ["pond", 1], keep: ["pond"],
+      sort2: ["pond", 1], keep: ["pond", "strain"],
       fields: [
         { k: "date", id: "w_date", req: "วันที่" },
         { k: "time", id: "w_time" },
         { k: "pond", id: "w_pond", req: "เลขที่บ่อ" },
+        { k: "strain", id: "w_strain" },
         { k: "ammonia", id: "w_nh3", num: true },
         { k: "nitrite", id: "w_no2", num: true },
         { k: "dox", id: "w_dox", num: true },
@@ -427,7 +431,7 @@
         { k: "salinity", id: "w_sal", num: NUM_SAL },
         { k: "note", id: "w_note" }
       ],
-      cols: [D(), T("time"), T("pond"), N("ammonia", 3), N("nitrite", 3), N("dox", 2), N("ph", 2),
+      cols: [D(), T("time"), T("pond"), T("strain"), N("ammonia", 3), N("nitrite", 3), N("dox", 2), N("ph", 2),
              N("magnesium", 2), N("calcium", 2), N("salinity", 1), REC(), T("note")]
     },
     matwater: {
@@ -518,6 +522,65 @@
              T("sender"), T("receiver"), T("doc"), REC(), T("note")]
     }
   };
+  /* ตัวเลือกบ่อ (A1-A8, A11-A18, PE1-PE4) และสายพันธุ์ (A, B) ใช้ร่วมกันในฟอร์มที่มีช่องบ่อ */
+  function seq(prefix, from, to) {
+    var out = [];
+    for (var i = from; i <= to; i++) out.push(prefix + i);
+    return out;
+  }
+  var POND_GROUPS = [
+    { label: "บ่อ A1–A8", items: seq("A", 1, 8) },
+    { label: "บ่อ A11–A18", items: seq("A", 11, 18) },
+    { label: "บ่อ PE1–PE4", items: seq("PE", 1, 4) }
+  ];
+  var TANKS = seq("T", 1, 4);   // วัสดุเตรียมน้ำ: T1-T4
+  var STRAINS = ["A", "B"];
+  function fillPondAndStrain() {
+    $all("select.pond-select").forEach(function (sel) {
+      sel.textContent = "";
+      var ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = "-- เลือกบ่อ --";
+      sel.appendChild(ph);
+      POND_GROUPS.forEach(function (g) {
+        var og = document.createElement("optgroup");
+        og.label = g.label;
+        g.items.forEach(function (name) {
+          var o = document.createElement("option");
+          o.value = name;
+          o.textContent = name;
+          og.appendChild(o);
+        });
+        sel.appendChild(og);
+      });
+    });
+    $all("select.tank-select").forEach(function (sel) {
+      sel.textContent = "";
+      var ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = "-- เลือกบ่อ --";
+      sel.appendChild(ph);
+      TANKS.forEach(function (name) {
+        var o = document.createElement("option");
+        o.value = name;
+        o.textContent = name;
+        sel.appendChild(o);
+      });
+    });
+    $all("select.strain-select").forEach(function (sel) {
+      sel.textContent = "";
+      var ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = "-- เลือกสายพันธุ์ --";
+      sel.appendChild(ph);
+      STRAINS.forEach(function (s) {
+        var o = document.createElement("option");
+        o.value = s;
+        o.textContent = "สายพันธุ์ " + s;
+        sel.appendChild(o);
+      });
+    });
+  }
   function formOf(m) { return byId(MOD[m].form); }
   function fieldOf(m, k) {
     var fs = MOD[m].fields;
@@ -1366,6 +1429,7 @@
     $all('input[type="date"]').forEach(upgradeDateInput);
     $all('input[type="time"]').forEach(upgradeTimeInput);
   }
+  fillPondAndStrain();
   initRecorderFields();
   initStaffPanel();
   initFilters();

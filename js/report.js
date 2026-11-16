@@ -46,6 +46,7 @@ window.BioReport = (function () {
     { key: "feed", title: "การให้อาหารและอุณหภูมิน้ำ", cols: [
       { k: "date", t: "วันที่", w: 12, type: "date" },
       { k: "pond", t: "บ่อ", w: 9 },
+      { k: "strain", t: "สายพันธุ์", w: 10 },
       { k: "age", t: "อายุ(วัน)", w: 9, type: "num" },
       { k: "feed0830", t: "อาหาร 08.30 (ก.)", w: 12, type: "num2" },
       { k: "feed1200", t: "อาหาร 12.00 (ก.)", w: 12, type: "num2" },
@@ -62,6 +63,7 @@ window.BioReport = (function () {
     { key: "health", title: "สุขภาพสัตว์น้ำ", cols: [
       { k: "date", t: "วันที่", w: 12, type: "date" },
       { k: "pond", t: "บ่อ", w: 9 },
+      { k: "strain", t: "สายพันธุ์", w: 10 },
       { k: "gut0830", t: "ลำไส้ 08.30", w: 11 },
       { k: "white0830", t: "การว่ายน้ำ 08.30", w: 12 },
       { k: "dead0830", t: "ตัวตาย 08.30", w: 11, type: "num" },
@@ -77,6 +79,7 @@ window.BioReport = (function () {
       { k: "date", t: "วันที่", w: 12, type: "date" },
       { k: "time", t: "เวลา", w: 8 },
       { k: "pond", t: "บ่อ", w: 9 },
+      { k: "strain", t: "สายพันธุ์", w: 10 },
       { k: "ammonia", t: "แอมโมเนีย (mg/L)", w: 12, type: "num3" },
       { k: "nitrite", t: "ไนไตรท์ (mg/L)", w: 12, type: "num3" },
       { k: "dox", t: "DO (mg/L)", w: 10, type: "num2" },
