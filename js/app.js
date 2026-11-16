@@ -1460,4 +1460,11 @@
   renderAll();
   buildReportPicks();
   refreshReportSummary();
+
+  /* ติดตั้งเป็นแอป/ใช้ออฟไลน์: ลงทะเบียน service worker (ใช้ได้เฉพาะ https หรือ localhost) */
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+    window.addEventListener("load", function () {
+      try { navigator.serviceWorker.register("sw.js").catch(function () {}); } catch (e) {}
+    });
+  }
 })();
