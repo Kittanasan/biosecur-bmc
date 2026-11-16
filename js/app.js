@@ -343,6 +343,23 @@
     return changed;
   }
   if (migrateHealthRows(DB.health)) saveAll(DB);
+  /* วัสดุล้างอุปกรณ์: "ปริมาณ (กรัม)" ถูกแทนด้วย "ความเข้มข้น (ppm)" — เป็นคนละหน่วย แปลงตรง ๆ ไม่ได้
+     จึงย้ายค่าปริมาณเดิมไปไว้ท้ายหมายเหตุ ไม่ให้ข้อมูลหาย */
+  function migrateEquipmentRows(rows) {
+    var changed = false;
+    (rows || []).forEach(function (r) {
+      if (!r || Object.prototype.hasOwnProperty.call(r, "conc")) return;
+      var q = r.qty;
+      if (q !== "" && q !== null && q !== undefined && isFinite(parseFloat(q))) {
+        r.note = (r.note ? r.note + " " : "") + "[ปริมาณเดิม: " + q + " กรัม]";
+      }
+      delete r.qty;
+      r.conc = "";
+      changed = true;
+    });
+    return changed;
+  }
+  if (migrateEquipmentRows(DB.equipment)) saveAll(DB);
 
   var MOD = {
     access: {
@@ -476,12 +493,12 @@
         { k: "chem", id: "eq_chem", req: "ชนิดสารเคมี" },
         { k: "brand", id: "eq_brand" },
         { k: "reg", id: "eq_reg" },
-        { k: "qty", id: "eq_qty", num: true },
+        { k: "conc", id: "eq_conc", num: true },
         { k: "pond", id: "eq_pond" },
         { k: "item", id: "eq_item" },
         { k: "note", id: "eq_note" }
       ],
-      cols: [D(), T("chem"), T("brand"), T("reg"), N("qty", 2), T("pond"), T("item"), REC(), T("note")]
+      cols: [D(), T("chem"), T("brand"), T("reg"), N("conc", 2), T("pond"), T("item"), REC(), T("note")]
     },
     watersource: {
       prefix: "ws", form: "formWaterSource", dom: "WaterSource", badge: "watersourceCount", cnt: "cntWaterSrc",
@@ -1305,7 +1322,8 @@
           MODULES.forEach(function (m) { if (editing[m]) formOf(m).reset(); });
           var d = pendingImport.data;
           if (d.modules.feed) migrateFeedRows(d.modules.feed);   // ไฟล์เก่าเป็น กก. -> กรัม
-          if (d.modules.health) migrateHealthRows(d.modules.health);   // ตัวเลือกการว่ายน้ำแบบเก่า -> แบบใหม่
+          if (d.modules.health) migrateHealthRows(d.modules.health);
+          if (d.modules.equipment) migrateEquipmentRows(d.modules.equipment);   // ตัวเลือกการว่ายน้ำแบบเก่า -> แบบใหม่
           var r = BioReport.mergeImport(DB, d, mode);
           if (!saveAll(DB)) return;
           // รายชื่อผู้บันทึกในไฟล์: แทนที่ (โหมดแทนที่) หรือเพิ่มชื่อที่ยังไม่มี (โหมดรวม)
