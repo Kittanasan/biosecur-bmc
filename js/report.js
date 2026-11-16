@@ -47,13 +47,15 @@ window.BioReport = (function () {
       { k: "date", t: "วันที่", w: 12, type: "date" },
       { k: "pond", t: "บ่อ", w: 9 },
       { k: "age", t: "อายุ(วัน)", w: 9, type: "num" },
-      { k: "feed0830", t: "อาหาร 08.30 (กก.)", w: 12, type: "num2" },
-      { k: "feed1200", t: "อาหาร 12.00 (กก.)", w: 12, type: "num2" },
-      { k: "feed1600", t: "อาหาร 16.00 (กก.)", w: 12, type: "num2" },
-      { k: "feed2000", t: "อาหาร 20.00 (กก.)", w: 12, type: "num2" },
-      { k: "total", t: "รวมอาหาร (กก.)", w: 12, type: "num2", calc: "feedTotal" },
-      { k: "temp0830", t: "อุณหภูมิ 08.30 (°C)", w: 12, type: "num1" },
-      { k: "temp1500", t: "อุณหภูมิ 15.00 (°C)", w: 12, type: "num1" },
+      { k: "feed0830", t: "อาหาร 08.30 (ก.)", w: 12, type: "num2" },
+      { k: "feed1200", t: "อาหาร 12.00 (ก.)", w: 12, type: "num2" },
+      { k: "feed1600", t: "อาหาร 16.00 (ก.)", w: 12, type: "num2" },
+      { k: "feed2000", t: "อาหาร 20.00 (ก.)", w: 12, type: "num2" },
+      { k: "total", t: "รวมอาหาร (ก.)", w: 12, type: "num2", calc: "feedTotal" },
+      { k: "temp0830", t: "อุณหภูมิน้ำ 08.30 (°C)", w: 12, type: "num1" },
+      { k: "temp1500", t: "อุณหภูมิน้ำ 15.00 (°C)", w: 12, type: "num1" },
+      { k: "airTemp0830", t: "อุณหภูมิอากาศ เช้า (°C)", w: 12, type: "num1" },
+      { k: "airTemp1500", t: "อุณหภูมิอากาศ บ่าย (°C)", w: 12, type: "num1" },
       { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
       { k: "note", t: "หมายเหตุ", w: 18 }
     ]},
@@ -61,10 +63,10 @@ window.BioReport = (function () {
       { k: "date", t: "วันที่", w: 12, type: "date" },
       { k: "pond", t: "บ่อ", w: 9 },
       { k: "gut0830", t: "ลำไส้ 08.30", w: 11 },
-      { k: "white0830", t: "ขาว่ายน้ำ 08.30", w: 12 },
+      { k: "white0830", t: "การว่ายน้ำ 08.30", w: 12 },
       { k: "dead0830", t: "ตัวตาย 08.30", w: 11, type: "num" },
       { k: "gut1600", t: "ลำไส้ 16.00", w: 11 },
-      { k: "white1600", t: "ขาว่ายน้ำ 16.00", w: 12 },
+      { k: "white1600", t: "การว่ายน้ำ 16.00", w: 12 },
       { k: "dead1600", t: "ตัวตาย 16.00", w: 11, type: "num" },
       { k: "deadTotal", t: "ตัวตายรวม", w: 10, type: "num", calc: "deadTotal" },
       { k: "feedManagement", t: "การจัดการอาหาร", w: 20 },
@@ -433,14 +435,16 @@ window.BioReport = (function () {
       if (inside) lines.push("ยังไม่บันทึกเวลาออก " + inside + " ราย");
     }
     if (s.key === "feed") {
-      lines.push("ปริมาณอาหารรวม " + sum("feed0830").toFixed(2) + " + " + sum("feed1200").toFixed(2) + " + " +
-                 sum("feed1600").toFixed(2) + " + " + sum("feed2000").toFixed(2) + " = " +
-                 (sum("feed0830") + sum("feed1200") + sum("feed1600") + sum("feed2000")).toFixed(2) + " กก.");
-      var t1 = avg("temp0830"), t2 = avg("temp1500");
+      function g(v) { return String(parseFloat(v.toFixed(2))); }
+      lines.push("ปริมาณอาหารรวม " + g(sum("feed0830")) + " + " + g(sum("feed1200")) + " + " +
+                 g(sum("feed1600")) + " + " + g(sum("feed2000")) + " = " +
+                 g(sum("feed0830") + sum("feed1200") + sum("feed1600") + sum("feed2000")) + " ก.");
+      var t1 = avg("temp0830"), t2 = avg("temp1500"), a1 = avg("airTemp0830"), a2 = avg("airTemp1500");
       if (t1 !== null) lines.push("อุณหภูมิน้ำเฉลี่ย 08.30 น. " + t1.toFixed(1) + " °C");
       if (t2 !== null) lines.push("อุณหภูมิน้ำเฉลี่ย 15.00 น. " + t2.toFixed(1) + " °C");
-    }
-    if (s.key === "health") {
+      if (a1 !== null) lines.push("อุณหภูมิอากาศเฉลี่ยตอนเช้า " + a1.toFixed(1) + " °C");
+      if (a2 !== null) lines.push("อุณหภูมิอากาศเฉลี่ยตอนบ่าย " + a2.toFixed(1) + " °C");
+    }    if (s.key === "health") {
       lines.push("ตัวตายรวม " + (sum("dead0830") + sum("dead1600")) + " ตัว");
     }
     if (s.key === "water") {

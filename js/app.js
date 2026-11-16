@@ -276,6 +276,48 @@
   function REC() { return function (r) { return td(r.recorder || "-", "rec-cell"); }; }
 
   function feedTotal(r) { return num(r.feed0830) + num(r.feed1200) + num(r.feed1600) + num(r.feed2000); }
+  /* อาหารเป็นกรัม: แสดงทศนิยมเท่าที่มี (สูงสุด 2 ตำแหน่ง) เช่น 1500 / 1500.5 */
+  function fmtG(v) { return String(parseFloat(num(v).toFixed(2))); }
+  function G(k) { return function (r) { return td(fmtG(r[k]), "num"); }; }
+
+  /* ข้อมูลอาหารรุ่นเก่าบันทึกเป็น กก. (ไม่มีเครื่องหมาย feedUnit) -> แปลงเป็น กรัม หนึ่งครั้ง */
+  var FEED_KEYS = ["feed0830", "feed1200", "feed1600", "feed2000"];
+  function migrateFeedRows(rows) {
+    var changed = false;
+    (rows || []).forEach(function (r) {
+      if (!r || r.feedUnit === "g") return;
+      FEED_KEYS.forEach(function (k) {
+        if (r[k] !== "" && r[k] !== null && r[k] !== undefined && isFinite(parseFloat(r[k]))) {
+          r[k] = parseFloat((parseFloat(r[k]) * 1000).toFixed(2));
+        }
+      });
+      r.feedUnit = "g";
+      changed = true;
+    });
+    return changed;
+  }
+  if (migrateFeedRows(DB.feed)) saveAll(DB);
+
+  /* ช่อง "การว่ายน้ำ" ของสุขภาพสัตว์น้ำ: ตัวเลือกเดิม (ไม่พบ/พบ…) -> ตัวเลือกใหม่
+     ระดับเดิมของค่า "พบ…" ถูกเก็บต่อท้ายหมายเหตุ ไม่ให้ข้อมูลหาย (ค่าใหม่ไม่ตรงกับค่าเดิม จึงรันซ้ำได้ปลอดภัย) */
+  var SWIM_MAP = { "ไม่พบ": "ปกติ", "พบเล็กน้อย": "ว่ายผิดปกติ", "พบปานกลาง": "ว่ายผิดปกติ", "พบมาก": "ว่ายผิดปกติ" };
+  function migrateHealthRows(rows) {
+    var changed = false;
+    (rows || []).forEach(function (r) {
+      if (!r) return;
+      [["white0830", "08.30"], ["white1600", "16.00"]].forEach(function (p) {
+        var old = r[p[0]];
+        if (!Object.prototype.hasOwnProperty.call(SWIM_MAP, old)) return;
+        r[p[0]] = SWIM_MAP[old];
+        if (old !== "ไม่พบ") {
+          r.note = (r.note ? r.note + " " : "") + "[ค่าเดิมการว่ายน้ำ " + p[1] + ": " + old + "]";
+        }
+        changed = true;
+      });
+    });
+    return changed;
+  }
+  if (migrateHealthRows(DB.health)) saveAll(DB);
 
   var MOD = {
     access: {
@@ -316,11 +358,13 @@
         { k: "feed2000", id: "f_f2000", num: true },
         { k: "temp0830", id: "f_t0830", num: NUM_TEMP },
         { k: "temp1500", id: "f_t1500", num: NUM_TEMP },
+        { k: "airTemp0830", id: "f_at0830", num: NUM_TEMP },
+        { k: "airTemp1500", id: "f_at1500", num: NUM_TEMP },
         { k: "note", id: "f_note" }
       ],
-      cols: [D(), T("pond"), I("age"), F2("feed0830"), F2("feed1200"), F2("feed1600"), F2("feed2000"),
-             function (r) { return td(fmt2(feedTotal(r)), "num"); },
-             N("temp0830", 1), N("temp1500", 1), REC(), T("note")]
+      cols: [D(), T("pond"), I("age"), G("feed0830"), G("feed1200"), G("feed1600"), G("feed2000"),
+             function (r) { return td(fmtG(feedTotal(r)), "num"); },
+             N("temp0830", 1), N("temp1500", 1), N("airTemp0830", 1), N("airTemp1500", 1), REC(), T("note")]
     },
     health: {
       prefix: "h", form: "formHealth", dom: "Health", badge: "healthCount", cnt: "cntHealth",
@@ -650,6 +694,7 @@
     if (!recorder) valid = false;
     if (!valid) { focusFirstBad(form); return; }
     rec.recorder = recorder;
+    if (m === "feed") rec.feedUnit = "g";   // ปริมาณอาหารเก็บเป็นกรัม (ดู migrateFeedRows)
 
     upsert(m, rec);
     if (!saveAll(DB)) return;
@@ -696,8 +741,19 @@
     MOD[m].fields.forEach(function (f) {
       var v = rec[f.k];
       if (v === null || v === undefined) v = "";
+      var el = byId(f.id);
       if (f.k === "date") setDateValue(f.id, String(v));
-      else byId(f.id).value = String(v);
+      else {
+        // ค่าเก่าที่ไม่อยู่ในตัวเลือกปัจจุบัน (เช่น ตัวเลือกที่เคยใช้) ให้เพิ่มเป็นตัวเลือกชั่วคราว จะได้ไม่หายตอนแก้ไข
+        if (el.tagName === "SELECT" && v !== "" && !$all("option", el).some(function (o) { return o.value === String(v); })) {
+          var legacy = document.createElement("option");
+          legacy.value = String(v);
+          legacy.textContent = String(v) + " (ค่าเดิม)";
+          legacy.setAttribute("data-legacy", "1");
+          el.appendChild(legacy);
+        }
+        el.value = String(v);
+      }
     });
     fillRecorder(m, rec.recorder);
     if (m === "feed") updateFeedTotal();
@@ -719,6 +775,7 @@
     editing[m] = null;
     var form = formOf(m);
     form.classList.remove("is-editing");
+    $all("option[data-legacy]", form).forEach(function (o) { o.parentNode.removeChild(o); });
     var b = form.querySelector(".edit-banner");
     if (b) b.hidden = true;
     submitLabel(form, null);
@@ -751,7 +808,7 @@
   function updateFeedTotal() {
     var total = num(byId("f_f0830").value) + num(byId("f_f1200").value) +
                 num(byId("f_f1600").value) + num(byId("f_f2000").value);
-    byId("f_total").value = total.toFixed(2);
+    byId("f_total").value = fmtG(total);
   }
   ["f_f0830", "f_f1200", "f_f1600", "f_f2000"].forEach(function (id) {
     byId(id).addEventListener("input", updateFeedTotal);
@@ -1159,6 +1216,8 @@
           if (!ok) return;
           MODULES.forEach(function (m) { if (editing[m]) formOf(m).reset(); });
           var d = pendingImport.data;
+          if (d.modules.feed) migrateFeedRows(d.modules.feed);   // ไฟล์เก่าเป็น กก. -> กรัม
+          if (d.modules.health) migrateHealthRows(d.modules.health);   // ตัวเลือกการว่ายน้ำแบบเก่า -> แบบใหม่
           var r = BioReport.mergeImport(DB, d, mode);
           if (!saveAll(DB)) return;
           // รายชื่อผู้บันทึกในไฟล์: แทนที่ (โหมดแทนที่) หรือเพิ่มชื่อที่ยังไม่มี (โหมดรวม)

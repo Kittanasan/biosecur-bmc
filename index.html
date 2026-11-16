@@ -596,7 +596,7 @@
   }
 
   /* ---------- การ์ดสรุป: มีแถบสี ไออคอน และตัวเลขเด่น ---------- */
-  .stats{gap:12px;margin-bottom:28px}
+  .stats{gap:12px;margin:32px 0 0}
   @media(min-width:768px){.stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}}
   .stat{
     position:relative;overflow:hidden;
@@ -919,40 +919,6 @@
     </div>
   </div>
 
-  <section class="stats" aria-label="สรุปข้อมูลวันนี้">
-    <div class="stat">
-      <div class="k">ผู้เข้าออกฟาร์ม (วันนี้)</div>
-      <div class="v" id="statAccess">0 <small>รายการ</small></div>
-    </div>
-    <div class="stat">
-      <div class="k">บันทึกอาหาร/อุณหภูมิ (วันนี้)</div>
-      <div class="v" id="statFeed">0 <small>บ่อ</small></div>
-    </div>
-    <div class="stat">
-      <div class="k">บันทึกสุขภาพสัตว์น้ำ (วันนี้)</div>
-      <div class="v" id="statHealth">0 <small>บ่อ</small></div>
-    </div>
-    <div class="stat">
-      <div class="k">บันทึกคุณภาพน้ำล่าสุด</div>
-      <div class="v" id="statWater">-</div>
-    </div>
-    <div class="stat">
-      <div class="k">บันทึกวัสดุ/สารเคมี (วันนี้)</div>
-      <div class="v" id="statMaterial">0 <small>รายการ</small></div>
-    </div>
-    <div class="stat">
-      <div class="k">บันทึกแหล่งน้ำใช้ (วันนี้)</div>
-      <div class="v" id="statWaterSrc">0 <small>รายการ</small></div>
-    </div>
-    <div class="stat">
-      <div class="k">เคลื่อนย้ายสัตว์น้ำ (วันนี้)</div>
-      <div class="v" id="statMove">0 <small>รายการ</small></div>
-    </div>
-    <div class="stat">
-      <div class="k">รายการบันทึกทั้งหมด</div>
-      <div class="v" id="statTotal">0 <small>รายการ</small></div>
-    </div>
-  </section>
 
   <section aria-label="เมนูบันทึกข้อมูล">
     <div class="section-title"><span class="bar"></span><h2>เมนูบันทึกข้อมูล</h2></div>
@@ -979,7 +945,7 @@
         </span>
         <span>
           <span class="m-title">บันทึกการให้อาหารและอุณหภูมิ</span>
-          <span class="m-desc">ปริมาณอาหาร 4 ช่วงเวลา (08.30 / 12.00 / 16.00 / 20.00) และอุณหภูมิน้ำ 2 ช่วงเวลา</span>
+          <span class="m-desc">ปริมาณอาหาร (กรัม) 4 ช่วงเวลา (08.30 / 12.00 / 16.00 / 20.00) อุณหภูมิน้ำ และอุณหภูมิอากาศ เช้า-บ่าย</span>
           <span class="m-count" id="cntFeed">0 รายการ</span>
         </span>
       </button>
@@ -990,7 +956,7 @@
         </span>
         <span>
           <span class="m-title">บันทึกสุขภาพสัตว์น้ำ</span>
-          <span class="m-desc">ลำไส้ ขาว่ายน้ำ ตัวตาย 2 ช่วงเวลา (08.30 / 16.00) พร้อมการจัดการอาหาร</span>
+          <span class="m-desc">ลำไส้ การว่ายน้ำ ตัวตาย 2 ช่วงเวลา (08.30 / 16.00) พร้อมการจัดการอาหาร</span>
           <span class="m-count" id="cntHealth">0 รายการ</span>
         </span>
       </button>
@@ -1078,6 +1044,41 @@
       </div>
     </div>
 
+  </section>
+
+  <section class="stats" aria-label="สรุปข้อมูลวันนี้">
+    <div class="stat">
+      <div class="k">ผู้เข้าออกฟาร์ม (วันนี้)</div>
+      <div class="v" id="statAccess">0 <small>รายการ</small></div>
+    </div>
+    <div class="stat">
+      <div class="k">บันทึกอาหาร/อุณหภูมิ (วันนี้)</div>
+      <div class="v" id="statFeed">0 <small>บ่อ</small></div>
+    </div>
+    <div class="stat">
+      <div class="k">บันทึกสุขภาพสัตว์น้ำ (วันนี้)</div>
+      <div class="v" id="statHealth">0 <small>บ่อ</small></div>
+    </div>
+    <div class="stat">
+      <div class="k">บันทึกคุณภาพน้ำล่าสุด</div>
+      <div class="v" id="statWater">-</div>
+    </div>
+    <div class="stat">
+      <div class="k">บันทึกวัสดุ/สารเคมี (วันนี้)</div>
+      <div class="v" id="statMaterial">0 <small>รายการ</small></div>
+    </div>
+    <div class="stat">
+      <div class="k">บันทึกแหล่งน้ำใช้ (วันนี้)</div>
+      <div class="v" id="statWaterSrc">0 <small>รายการ</small></div>
+    </div>
+    <div class="stat">
+      <div class="k">เคลื่อนย้ายสัตว์น้ำ (วันนี้)</div>
+      <div class="v" id="statMove">0 <small>รายการ</small></div>
+    </div>
+    <div class="stat">
+      <div class="k">รายการบันทึกทั้งหมด</div>
+      <div class="v" id="statTotal">0 <small>รายการ</small></div>
+    </div>
   </section>
 </main>
 
@@ -1195,7 +1196,7 @@
     </span>
     <div class="titles">
       <h2 id="feedTitle">บันทึกการให้อาหารและอุณหภูมิน้ำ</h2>
-      <div class="s">ปริมาณอาหาร 4 ช่วงเวลา และอุณหภูมิน้ำ 2 ช่วงเวลา</div>
+      <div class="s">ปริมาณอาหาร (กรัม) 4 ช่วงเวลา อุณหภูมิน้ำ และอุณหภูมิอากาศ เช้า-บ่าย</div>
     </div>
     <div class="list-filter"><label for="fltFeed">ดูข้อมูล</label><select id="fltFeed" data-filter="feed"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
@@ -1225,32 +1226,32 @@
       </div>
 
       <fieldset class="groupset" style="margin-top:16px">
-        <legend>ปริมาณอาหารที่ให้ (กก.)</legend>
+        <legend>ปริมาณอาหารที่ให้ (ก.)</legend>
         <div class="grid g4">
           <div class="field">
             <label for="f_f0830">08.30 น.</label>
-            <div class="input-group"><input type="number" id="f_f0830" name="feed0830" min="0" step="0.01" inputmode="decimal" placeholder="0.00"><span class="unit">กก.</span></div>
+            <div class="input-group"><input type="number" id="f_f0830" name="feed0830" min="0" step="0.01" inputmode="decimal" placeholder="0"><span class="unit">ก.</span></div>
             <div class="err" data-err="f_f0830">กรอกตัวเลขไม่ติดลบ</div>
           </div>
           <div class="field">
             <label for="f_f1200">12.00 น.</label>
-            <div class="input-group"><input type="number" id="f_f1200" name="feed1200" min="0" step="0.01" inputmode="decimal" placeholder="0.00"><span class="unit">กก.</span></div>
+            <div class="input-group"><input type="number" id="f_f1200" name="feed1200" min="0" step="0.01" inputmode="decimal" placeholder="0"><span class="unit">ก.</span></div>
             <div class="err" data-err="f_f1200">กรอกตัวเลขไม่ติดลบ</div>
           </div>
           <div class="field">
             <label for="f_f1600">16.00 น.</label>
-            <div class="input-group"><input type="number" id="f_f1600" name="feed1600" min="0" step="0.01" inputmode="decimal" placeholder="0.00"><span class="unit">กก.</span></div>
+            <div class="input-group"><input type="number" id="f_f1600" name="feed1600" min="0" step="0.01" inputmode="decimal" placeholder="0"><span class="unit">ก.</span></div>
             <div class="err" data-err="f_f1600">กรอกตัวเลขไม่ติดลบ</div>
           </div>
           <div class="field">
             <label for="f_f2000">20.00 น.</label>
-            <div class="input-group"><input type="number" id="f_f2000" name="feed2000" min="0" step="0.01" inputmode="decimal" placeholder="0.00"><span class="unit">กก.</span></div>
+            <div class="input-group"><input type="number" id="f_f2000" name="feed2000" min="0" step="0.01" inputmode="decimal" placeholder="0"><span class="unit">ก.</span></div>
             <div class="err" data-err="f_f2000">กรอกตัวเลขไม่ติดลบ</div>
           </div>
         </div>
         <div class="field" style="margin-top:10px">
           <label for="f_total">รวมอาหารทั้งวัน</label>
-          <div class="input-group"><input type="text" id="f_total" readonly value="0.00"><span class="unit">กก.</span></div>
+          <div class="input-group"><input type="text" id="f_total" readonly value="0"><span class="unit">ก.</span></div>
           <div class="hint">คำนวณอัตโนมัติจาก 4 ช่วงเวลา</div>
         </div>
       </fieldset>
@@ -1267,6 +1268,22 @@
             <label for="f_t1500">เวลา 15.00 น.</label>
             <div class="input-group"><input type="number" id="f_t1500" name="temp1500" min="0" max="45" step="0.1" inputmode="decimal" placeholder="0.0"><span class="unit">°C</span></div>
             <div class="err" data-err="f_t1500">กรอกค่าอุณหภูมิระหว่าง 0-45 °C</div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="groupset" style="margin-top:14px">
+        <legend>อุณหภูมิอากาศ (°C)</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="f_at0830">เช้า 08.30 น.</label>
+            <div class="input-group"><input type="number" id="f_at0830" name="airTemp0830" min="0" max="45" step="0.1" inputmode="decimal" placeholder="0.0"><span class="unit">°C</span></div>
+            <div class="err" data-err="f_at0830">กรอกค่าอุณหภูมิระหว่าง 0-45 °C</div>
+          </div>
+          <div class="field">
+            <label for="f_at1500">บ่าย 15.00 น.</label>
+            <div class="input-group"><input type="number" id="f_at1500" name="airTemp1500" min="0" max="45" step="0.1" inputmode="decimal" placeholder="0.0"><span class="unit">°C</span></div>
+            <div class="err" data-err="f_at1500">กรอกค่าอุณหภูมิระหว่าง 0-45 °C</div>
           </div>
         </div>
       </fieldset>
@@ -1297,8 +1314,8 @@
           <tr>
             <th>วันที่</th><th>บ่อ</th><th class="num">อายุ (วัน)</th>
             <th class="num">08.30</th><th class="num">12.00</th><th class="num">16.00</th><th class="num">20.00</th>
-            <th class="num">รวม (กก.)</th>
-            <th class="num">อุณหภูมิ 08.30</th><th class="num">อุณหภูมิ 15.00</th>
+            <th class="num">รวม (ก.)</th>
+            <th class="num">น้ำ 08.30 (°C)</th><th class="num">น้ำ 15.00 (°C)</th><th class="num">อากาศ เช้า (°C)</th><th class="num">อากาศ บ่าย (°C)</th>
             <th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
         </thead>
@@ -1320,7 +1337,7 @@
     </span>
     <div class="titles">
       <h2 id="healthTitle">บันทึกสุขภาพสัตว์น้ำ</h2>
-      <div class="s">ลำไส้ ขาว่ายน้ำ และตัวตาย 2 ช่วงเวลา</div>
+      <div class="s">ลำไส้ การว่ายน้ำ และตัวตาย 2 ช่วงเวลา</div>
     </div>
     <div class="list-filter"><label for="fltHealth">ดูข้อมูล</label><select id="fltHealth" data-filter="health"></select></div>
     <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
@@ -1356,13 +1373,13 @@
             </select>
           </div>
           <div class="field">
-            <label for="h_white0830">ขาว่ายน้ำ</label>
+            <label for="h_white0830">การว่ายน้ำ</label>
             <select id="h_white0830" name="white0830">
               <option value="">- ไม่ระบุ -</option>
-              <option value="ไม่พบ">ไม่พบ</option>
-              <option value="พบเล็กน้อย">พบเล็กน้อย</option>
-              <option value="พบปานกลาง">พบปานกลาง</option>
-              <option value="พบมาก">พบมาก</option>
+              <option value="ปกติ">ปกติ</option>
+              <option value="ว่ายน้ำช้า">ว่ายน้ำช้า</option>
+              <option value="ลอยหัว">ลอยหัว</option>
+              <option value="ว่ายผิดปกติ">ว่ายผิดปกติ</option>
             </select>
           </div>
           <div class="field">
@@ -1388,13 +1405,13 @@
             </select>
           </div>
           <div class="field">
-            <label for="h_white1600">ขาว่ายน้ำ</label>
+            <label for="h_white1600">การว่ายน้ำ</label>
             <select id="h_white1600" name="white1600">
               <option value="">- ไม่ระบุ -</option>
-              <option value="ไม่พบ">ไม่พบ</option>
-              <option value="พบเล็กน้อย">พบเล็กน้อย</option>
-              <option value="พบปานกลาง">พบปานกลาง</option>
-              <option value="พบมาก">พบมาก</option>
+              <option value="ปกติ">ปกติ</option>
+              <option value="ว่ายน้ำช้า">ว่ายน้ำช้า</option>
+              <option value="ลอยหัว">ลอยหัว</option>
+              <option value="ว่ายผิดปกติ">ว่ายผิดปกติ</option>
             </select>
           </div>
           <div class="field">
@@ -1443,8 +1460,8 @@
         <thead>
           <tr>
             <th>วันที่</th><th>บ่อ</th>
-            <th>ลำไส้ 08.30</th><th>ขาว่ายน้ำ 08.30</th><th class="num">ตาย 08.30</th>
-            <th>ลำไส้ 16.00</th><th>ขาว่ายน้ำ 16.00</th><th class="num">ตาย 16.00</th>
+            <th>ลำไส้ 08.30</th><th>การว่ายน้ำ 08.30</th><th class="num">ตาย 08.30</th>
+            <th>ลำไส้ 16.00</th><th>การว่ายน้ำ 16.00</th><th class="num">ตาย 16.00</th>
             <th class="num">ตายรวม</th>
             <th>จัดการอาหาร</th><th>ผู้บันทึก</th><th>หมายเหตุ</th><th></th>
           </tr>
