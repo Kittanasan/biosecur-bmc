@@ -1901,8 +1901,11 @@
         </div>
         <div class="field">
           <label for="ws_source">แหล่งน้ำที่ใช้ <span class="req">*</span></label>
-          <input type="text" id="ws_source" list="sourceList" placeholder="เช่น คลอง / น้ำบาดาล / น้ำทะเล" required>
-          <div class="err" data-err="ws_source">กรุณาระบุแหล่งน้ำที่ใช้</div>
+          <select id="ws_source" required>
+            <option value="">-- เลือกแหล่งน้ำ --</option>
+            <option value="บ่อบำบัดน้ำ">บ่อบำบัดน้ำ</option>
+          </select>
+          <div class="err" data-err="ws_source">กรุณาเลือกแหล่งน้ำที่ใช้</div>
         </div>
         <div class="field">
           <label for="ws_pond">บ่อที่ใช้</label>
@@ -1925,7 +1928,10 @@
         </div>
         <div class="field">
           <label for="ws_treat">การบำบัดน้ำ</label>
-          <input type="text" id="ws_treat" list="treatList" placeholder="เช่น ตกตะกอน / คลอรีน / กรอง">
+          <select id="ws_treat">
+            <option value="">- ไม่ระบุ -</option>
+            <option value="ตกตะกอน">ตกตะกอน</option>
+          </select>
         </div>
         <div class="field">
           <label for="ws_result">ผลตรวจเบื้องต้น</label>
@@ -2303,20 +2309,6 @@
   <option value="ไอโอดีน"></option>
   <option value="เบตาดีน"></option>
   <option value="แอลกอฮอล์"></option>
-</datalist>
-<datalist id="sourceList">
-  <option value="น้ำคลอง"></option>
-  <option value="น้ำทะเล"></option>
-  <option value="น้ำบาดาล"></option>
-  <option value="น้ำประปา"></option>
-  <option value="น้ำฝน"></option>
-</datalist>
-<datalist id="treatList">
-  <option value="กรอง"></option>
-  <option value="ตกตะกอน"></option>
-  <option value="คลอรีน"></option>
-  <option value="กรองทราย"></option>
-  <option value="ฆ่าเชื้อด้วยUV"></option>
 </datalist>
 <datalist id="moveMethodList">
   <option value="ถุงออกซิเจน"></option>
