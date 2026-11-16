@@ -107,7 +107,7 @@ window.BioReport = (function () {
       { k: "chem", t: "ชนิดสารเคมี", w: 16 },
       { k: "brand", t: "ยี่ห้อ/บริษัท", w: 18 },
       { k: "reg", t: "เลขทะเบียนทางการค้า", w: 16 },
-      { k: "qty", t: "ปริมาณ (กรัม)", w: 12, type: "num2" },
+      { k: "conc", t: "ความเข้มข้น (ppm)", w: 12, type: "num2" },
       { k: "size", t: "ขนาดอ่าง (ลิตร)", w: 12, type: "num2" },
       { k: "place", t: "ตำแหน่งอ่าง", w: 18 },
       { k: "recorder", t: "ผู้บันทึกข้อมูล", w: 18 },
@@ -459,7 +459,7 @@ window.BioReport = (function () {
       });
     }
     if (s.key === "matwater") lines.push("ปริมาณสารเคมีรวม " + sum("qty").toFixed(2) + " กก.");
-    if (s.key === "footbath") lines.push("ปริมาณสารเคมีรวม " + sum("qty").toFixed(2) + " กรัม");
+    if (s.key === "footbath" && avg("conc") !== null) lines.push("ความเข้มข้นเฉลี่ย " + avg("conc").toFixed(2) + " ppm");
     if (s.key === "equipment" && avg("conc") !== null) lines.push("ความเข้มข้นเฉลี่ย " + avg("conc").toFixed(2) + " ppm");
     if (s.key === "watersource") {
       lines.push("ปริมาณน้ำใช้รวม " + sum("qty").toFixed(2) + " ตัน");

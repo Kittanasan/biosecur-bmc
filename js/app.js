@@ -343,9 +343,9 @@
     return changed;
   }
   if (migrateHealthRows(DB.health)) saveAll(DB);
-  /* วัสดุล้างอุปกรณ์: "ปริมาณ (กรัม)" ถูกแทนด้วย "ความเข้มข้น (ppm)" — เป็นคนละหน่วย แปลงตรง ๆ ไม่ได้
+  /* วัสดุล้างอุปกรณ์และอ่างย่ำเท้า: "ปริมาณ (กรัม)" ถูกแทนด้วย "ความเข้มข้น (ppm)" — เป็นคนละหน่วย แปลงตรง ๆ ไม่ได้
      จึงย้ายค่าปริมาณเดิมไปไว้ท้ายหมายเหตุ ไม่ให้ข้อมูลหาย */
-  function migrateEquipmentRows(rows) {
+  function migrateConcRows(rows) {
     var changed = false;
     (rows || []).forEach(function (r) {
       if (!r || Object.prototype.hasOwnProperty.call(r, "conc")) return;
@@ -359,7 +359,8 @@
     });
     return changed;
   }
-  if (migrateEquipmentRows(DB.equipment)) saveAll(DB);
+  var concChanged = migrateConcRows(DB.equipment);
+  if (migrateConcRows(DB.footbath) || concChanged) saveAll(DB);
 
   var MOD = {
     access: {
@@ -477,12 +478,12 @@
         { k: "chem", id: "fb_chem", req: "ชนิดสารเคมี" },
         { k: "brand", id: "fb_brand" },
         { k: "reg", id: "fb_reg" },
-        { k: "qty", id: "fb_qty", num: true },
+        { k: "conc", id: "fb_conc", num: true },
         { k: "size", id: "fb_size", num: true },
         { k: "place", id: "fb_place" },
         { k: "note", id: "fb_note" }
       ],
-      cols: [D(), T("chem"), T("brand"), T("reg"), N("qty", 2), N("size", 2), T("place"), REC(), T("note")]
+      cols: [D(), T("chem"), T("brand"), T("reg"), N("conc", 2), N("size", 2), T("place"), REC(), T("note")]
     },
     equipment: {
       prefix: "eq", form: "formEquipment", dom: "Equipment", badge: "equipmentCount", cnt: "cntEquipment",
@@ -1322,8 +1323,9 @@
           MODULES.forEach(function (m) { if (editing[m]) formOf(m).reset(); });
           var d = pendingImport.data;
           if (d.modules.feed) migrateFeedRows(d.modules.feed);   // ไฟล์เก่าเป็น กก. -> กรัม
-          if (d.modules.health) migrateHealthRows(d.modules.health);
-          if (d.modules.equipment) migrateEquipmentRows(d.modules.equipment);   // ตัวเลือกการว่ายน้ำแบบเก่า -> แบบใหม่
+          if (d.modules.health) migrateHealthRows(d.modules.health);   // ตัวเลือกการว่ายน้ำแบบเก่า -> แบบใหม่
+          if (d.modules.equipment) migrateConcRows(d.modules.equipment);   // ปริมาณ (กรัม) -> ความเข้มข้น (ppm)
+          if (d.modules.footbath) migrateConcRows(d.modules.footbath);
           var r = BioReport.mergeImport(DB, d, mode);
           if (!saveAll(DB)) return;
           // รายชื่อผู้บันทึกในไฟล์: แทนที่ (โหมดแทนที่) หรือเพิ่มชื่อที่ยังไม่มี (โหมดรวม)
