@@ -600,7 +600,7 @@ window.BioReport = (function () {
     host.innerHTML = buildReportHTML(data);
     var style = document.createElement("style");
     style.textContent =
-      '#printLayer{position:fixed;inset:0;z-index:9999;background:#fff;overflow:auto;padding:16px;' +
+      '#printLayer{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9999;background:#fff;overflow:auto;padding:16px;' +
       '-webkit-overflow-scrolling:touch}' +
       '#printLayer .print-close{position:sticky;top:0;display:flex;gap:8px;justify-content:flex-end;' +
       'background:#fff;padding:6px 0 10px}' +

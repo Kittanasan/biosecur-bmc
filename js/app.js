@@ -668,7 +668,8 @@
     var spec = MOD[m];
     var total = DB[m].length;
     var empty = byId("empty" + spec.dom);
-    var wrap = byId("tbody" + spec.dom).closest(".table-wrap");
+    var wrap = byId("tbody" + spec.dom);
+    while (wrap && !(wrap.className && String(wrap.className).indexOf("table-wrap") !== -1)) wrap = wrap.parentNode;   // แทน closest() สำหรับเบราว์เซอร์เก่า
     var has = count > 0;
     if (empty) {
       if (empty.dataset.orig === undefined) empty.dataset.orig = empty.innerHTML;
