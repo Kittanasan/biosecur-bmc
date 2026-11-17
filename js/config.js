@@ -4,6 +4,6 @@
    ปล่อยว่าง = ใช้แบบเก็บในเครื่องอย่างเดียว (ผู้ใช้แต่ละคนตั้งค่าเองได้ที่ปุ่ม "ข้อมูลกลาง")
    หมายเหตุ: ห้ามใส่รหัสทีมในไฟล์นี้ (ไฟล์นี้เป็นสาธารณะ) */
 window.BIO_CONFIG = {
-  syncUrl: "",
+  syncUrl: "https://script.google.com/macros/s/AKfycbx6ZKAyAVGhWMUlWenCyDB_v9nX5_uDW3VLiRzHL1Oa14DtIlO9hNwxjP5O2LjNn3wO/exec",
   sheetUrl: ""
 };

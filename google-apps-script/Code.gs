@@ -184,6 +184,19 @@ function coerce_(v, col) {
   return String(v);
 }
 
+/** กันข้อความที่ขึ้นต้นด้วย "=" (ถูกตีเป็นสูตร) หรือ "'" (ถูกตัดทิ้ง) ด้วยการเติม "'" นำหน้าอีก 1 ตัว
+ *  Google Sheets จะตัด "'" นำหน้าออก 1 ตัวพอดี ค่าที่อ่านกลับมาจึงเป็นข้อความเดิม
+ *  ต้องเรียกกับ "ทุกเซลล์ข้อความ" ก่อนเขียนกลับทั้งชุด (รวมแถวเก่าที่อ่านมา) ไม่ใช่เฉพาะแถวใหม่ */
+function guardText_(data, keys) {
+  data.forEach(function (row) {
+    keys.forEach(function (c, j) {
+      if (c.num || c.k === "deleted") return;
+      var v = row[j];
+      if (typeof v === "string" && (v.charAt(0) === "=" || v.charAt(0) === "'")) row[j] = "'" + v;
+    });
+  });
+}
+
 function push_(body) {
   if (!keyOk_(body.key)) return { ok: false, error: needsSetup_() ? "not_configured" : "bad_key" };
   var lock = LockService.getScriptLock();
@@ -232,6 +245,7 @@ function push_(body) {
       });
 
       if (data.length) {
+        guardText_(data, keys);
         var needRows = HEADER_ROWS + data.length;
         if (sheet.getMaxRows() < needRows) sheet.insertRowsAfter(sheet.getMaxRows(), needRows - sheet.getMaxRows());
         sheet.getRange(HEADER_ROWS + 1, 1, data.length, width).setValues(data);
