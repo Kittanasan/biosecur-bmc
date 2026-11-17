@@ -867,6 +867,25 @@
   .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   @media(max-width:420px){ .panel-head{gap:8px;padding:12px} .btn-back{padding:0 10px 0 6px} }
 
+  /* ---------- ที่เก็บข้อมูลกลาง ---------- */
+  .sync-chip svg{width:18px;height:18px}
+  .sync-chip[data-state="ok"]{border-color:#a8d9bf;background:#eaf7f0;color:#14633f}
+  .sync-chip[data-state="syncing"],.sync-chip[data-state="pending"]{border-color:#bfdde9;background:#e3f2f8;color:#06617f}
+  .sync-chip[data-state="error"]{border-color:#f0c4bf;background:#fdeceb;color:#a02a1f}
+  .sync-chip[data-state="offline"]{border-color:#f3d9a4;background:#fff7e6;color:#7a4b00}
+  .sync-chip[data-state="readonly"]{border-color:#d3dde4;background:#f2f7fa;color:#33525f}
+  .sync-info{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0 0 12px;font-size:.92rem}
+  .sync-info dt{color:var(--muted);font-weight:700}
+  .sync-info dd{margin:0;min-width:0;overflow-wrap:anywhere}
+  #syncStatus[data-state="ok"]{color:var(--success)}
+  #syncStatus[data-state="error"]{color:var(--danger)}
+  #syncStatus[data-state="offline"]{color:#7a4b00}
+  a.btn{text-decoration:none}
+  input[type=password]{
+    font-family:inherit;font-size:.95rem;color:var(--text);background:#fff;
+    border:1px solid #d3dde4;border-radius:var(--radius-sm);padding:10px 11px;min-height:44px;width:100%;
+  }
+  input[type=password]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(10,126,164,.16)}
   .choice-other{margin-top:8px}
 
   /* ---------- ใช้ได้ทุกอุปกรณ์: รอยบากจอ/แถบสถานะ (iPhone ที่ติดตั้งเป็นแอป), ปัดดึงรีเฟรช ---------- */
@@ -950,6 +969,10 @@
       <div class="sub">เลือกไอคอนที่ต้องการเพื่อเปิดแบบฟอร์มบันทึกและดูตารางย้อนหลัง</div>
     </div>
     <div class="head-tools">
+      <button class="btn btn-ghost btn-sm sync-chip" type="button" id="btnSyncChip" data-open="sync" data-state="off">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 10.04A7.5 7.5 0 0 0 5.1 8.6 5.5 5.5 0 0 0 6 19.5h12.5a4.5 4.5 0 0 0 .9-8.96ZM12 17l-4-4h2.5V9.5h3V13H16l-4 4Z"/></svg>
+        <span id="syncChipText">ข้อมูลกลาง</span>
+      </button>
       <button class="btn btn-ghost btn-sm" type="button" data-open="staff">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 8c3.3 0 6 1.6 6 4v2H3v-2c0-2.4 2.7-4 6-4Zm0 2c-2.2 0-3.7.9-4 2h8c-.3-1.1-1.8-2-4-2Zm8-4h2v2h2v2h-2v2h-2v-2h-2v-2h2v-2Z"/></svg>
         รายชื่อผู้บันทึก
@@ -2284,6 +2307,68 @@
   </div>
 </section>
 
+<!-- ============ PANEL: SYNC (ที่เก็บข้อมูลกลาง) ============ -->
+<section class="panel" id="panel-sync" aria-labelledby="syncTitle">
+  <div class="panel-head">
+    <span class="icon-sm" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M19.4 10.04A7.5 7.5 0 0 0 5.1 8.6 5.5 5.5 0 0 0 6 19.5h12.5a4.5 4.5 0 0 0 .9-8.96ZM12 17l-4-4h2.5V9.5h3V13H16l-4 4Z"/></svg>
+    </span>
+    <div class="titles">
+      <h2 id="syncTitle">ที่เก็บข้อมูลกลาง (Google Sheets)</h2>
+      <div class="s">รวมข้อมูลจากทุกเครื่อง ให้ทุกคนที่มีลิงก์เปิดดูได้</div>
+    </div>
+    <button class="icon-btn" type="button" data-close aria-label="ปิดหน้าต่าง">&times;</button>
+  </div>
+  <div class="panel-body">
+    <div class="card">
+      <h3><span class="dot"></span>สถานะ</h3>
+      <dl class="sync-info">
+        <dt>สถานะ</dt><dd><strong id="syncStatus" data-state="off">ข้อมูลกลาง: ยังไม่ตั้งค่า</strong></dd>
+        <dt>โหมด</dt><dd id="syncMode">ยังไม่ได้ตั้งค่า</dd>
+        <dt>ซิงก์ล่าสุด</dt><dd id="syncLast">-</dd>
+        <dt>รอส่งขึ้นกลาง</dt><dd id="syncPending">0 รายการ</dd>
+      </dl>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="btn btn-primary" type="button" id="btnSyncNow">ซิงก์ตอนนี้</button>
+        <a class="btn btn-ghost" id="btnSyncOpenSheet" href="#" target="_blank" rel="noopener" hidden>เปิดดูใน Google Sheets</a>
+      </div>
+    </div>
+
+    <form class="card" id="formSync" novalidate>
+      <h3><span class="dot"></span>ตั้งค่าการเชื่อมต่อ</h3>
+      <div class="grid">
+        <div class="field full">
+          <label for="sync_url">ลิงก์ Web App ของ Google Apps Script</label>
+          <input type="text" id="sync_url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" inputmode="url">
+          <div class="err" data-err="sync_url">ลิงก์ต้องขึ้นต้นด้วย https://script.google.com/ และลงท้ายด้วย /exec</div>
+          <div class="hint">ได้จากขั้นตอน Deploy ใน SETUP-GOOGLE-SHEETS.md (ถ้าผู้ดูแลตั้งไว้ใน js/config.js แล้ว ไม่ต้องกรอก)</div>
+        </div>
+        <div class="field">
+          <label for="sync_key">รหัสทีม (สำหรับผู้บันทึกข้อมูล)</label>
+          <input type="password" id="sync_key" placeholder="เว้นว่าง = ดูข้อมูลได้อย่างเดียว" autocomplete="off">
+          <div class="hint">เก็บในเครื่องนี้เท่านั้น ใส่แล้วจึงจะเพิ่ม/แก้/ลบข้อมูลขึ้นที่เก็บกลางได้</div>
+        </div>
+        <div class="field">
+          <label for="sync_sheet">ลิงก์ Google Sheets (ไม่บังคับ)</label>
+          <input type="text" id="sync_sheet" placeholder="https://docs.google.com/spreadsheets/d/…" autocomplete="off" inputmode="url">
+          <div class="hint">ใส่แล้วจะมีปุ่ม "เปิดดูใน Google Sheets"</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button" id="btnSyncReset">ดึง/ส่งใหม่ทั้งหมด</button>
+        <button class="btn btn-primary" type="submit">บันทึกการตั้งค่า</button>
+      </div>
+    </form>
+
+    <div class="note-box">
+      <strong>วิธีทำงาน:</strong> ข้อมูลยังบันทึกในเครื่องก่อนเสมอ ใช้ออฟไลน์ได้ เมื่อมีอินเทอร์เน็ตจะซิงก์ขึ้น Google Sheets
+      และดึงข้อมูลของเครื่องอื่นมารวมให้ ถ้าแก้รายการเดียวกันพร้อมกัน ฉบับที่แก้ทีหลังจะถูกใช้<br>
+      <strong>ความเป็นส่วนตัว:</strong> ทุกคนที่มีลิงก์ Google Sheets เปิดดูได้ รวมถึงชื่อผู้เข้า-ออกฟาร์ม
+      หากไม่ต้องการแสดงสู่สาธารณะ ให้ผู้ดูแลตั้งค่า <code>PUBLIC_HIDE_MODULES</code> ใน Code.gs
+      <br>รายชื่อผู้บันทึกข้อมูลยังเก็บแยกในแต่ละเครื่อง (ไม่ซิงก์) ใช้ส่งออก/นำเข้า JSON เพื่อย้ายรายชื่อ
+    </div>
+  </div>
+</section>
 <!-- ============ PANEL: STAFF (รายชื่อผู้บันทึก) ============ -->
 <section class="panel" id="panel-staff" aria-labelledby="staffTitle">
   <div class="panel-head">
@@ -2355,6 +2440,8 @@
 </datalist>
 
 <script src="js/report.js"></script>
+<script src="js/config.js"></script>
 <script src="js/app.js"></script>
+<script src="js/sync.js"></script>
 </body>
 </html>

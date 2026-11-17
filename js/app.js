@@ -88,6 +88,24 @@
   }
   var DB = loadAll();
 
+  /* รายการที่ลบ (ใช้ซิงก์ขึ้นที่เก็บข้อมูลกลาง) และตัวแจ้งว่ามีการเปลี่ยนแปลงในเครื่อง */
+  var TOMB_KEY = "biosecurity-shrimp-tomb";
+  var TOMB = (function () {
+    try {
+      var t = JSON.parse(store.get(TOMB_KEY) || "{}");
+      return t && typeof t === "object" ? t : {};
+    } catch (e) { return {}; }
+  })();
+  function saveTomb() { store.set(TOMB_KEY, JSON.stringify(TOMB)); }
+  function noteDelete(m, id) {
+    if (!TOMB[m]) TOMB[m] = {};
+    TOMB[m][id] = Date.now();
+    saveTomb();
+  }
+  function afterChange() {
+    try { if (window.BioSync && window.BioSync.schedule) window.BioSync.schedule(); } catch (e) {}
+  }
+
   /* ================================================================
      2) helpers
      ================================================================ */
@@ -173,6 +191,7 @@
     if (!p) return;
     if (name === "report") { buildReportPicks(); refreshReportSummary(); }
     if (name === "staff") renderStaffList();
+    if (name === "sync" && window.BioSync && window.BioSync.refreshUI) window.BioSync.refreshUI();
     p.classList.add("open");
     overlay.classList.add("open");
     openPanelId = name;
@@ -676,8 +695,9 @@
     askConfirm("ต้องการลบรายการบันทึกนี้หรือไม่? ข้อมูลที่ลบแล้วจะกู้คืนไม่ได้").then(function (ok) {
       if (!ok) return;
       DB[m] = DB[m].filter(function (r) { return r.id !== id; });
+      noteDelete(m, id);
       if (editing[m] === id) formOf(m).reset();
-      if (saveAll(DB)) { renderAll(); toast("ลบรายการแล้ว", "ok"); }
+      if (saveAll(DB)) { renderAll(); toast("ลบรายการแล้ว", "ok"); afterChange(); }
     });
   }
 
@@ -774,6 +794,7 @@
 
   /* ถ้ากำลังแก้ไขให้แทนที่รายการเดิม (คง id เดิม) ไม่งั้นเพิ่มใหม่ */
   function upsert(m, rec) {
+    rec.updatedAt = Date.now();
     var eid = editing[m];
     if (eid) {
       for (var i = 0; i < DB[m].length; i++) {
@@ -809,6 +830,7 @@
     spec.keep.forEach(function (k) { byId(fieldOf(m, k).id).value = rec[k]; });
     renderAll();
     toast(spec.saved, "ok");
+    afterChange();
   }
 
   /* ---------- แก้ไขรายการ ---------- */
@@ -1408,7 +1430,16 @@
           if (d.modules.health) migrateHealthRows(d.modules.health);   // ตัวเลือกการว่ายน้ำแบบเก่า -> แบบใหม่
           if (d.modules.equipment) migrateConcRows(d.modules.equipment);   // ปริมาณ (กรัม) -> ความเข้มข้น (ppm)
           if (d.modules.footbath) migrateConcRows(d.modules.footbath);
+          var before = {};
+          MODULES.forEach(function (m) {
+            before[m] = {};
+            DB[m].forEach(function (row) { before[m][row.id] = true; if (mode === "replace") noteDelete(m, row.id); });
+          });
           var r = BioReport.mergeImport(DB, d, mode);
+          var stampNow = Date.now();
+          MODULES.forEach(function (m) {
+            DB[m].forEach(function (row) { if (!before[m][row.id]) row.updatedAt = stampNow; });   // รายการใหม่จากไฟล์ -> ให้ถูกซิงก์ขึ้นที่เก็บกลาง
+          });
           if (!saveAll(DB)) return;
           // รายชื่อผู้บันทึกในไฟล์: แทนที่ (โหมดแทนที่) หรือเพิ่มชื่อที่ยังไม่มี (โหมดรวม)
           if (d.staff && d.staff.length) {
@@ -1422,6 +1453,7 @@
           input.value = "";
           showImportInfo();
           toast("นำเข้าสำเร็จ: เพิ่ม " + r.added + " รายการ, ซ้ำ " + r.skipped + ", แทนที่ " + r.replaced, "ok");
+          afterChange();
         });
     });
   }
@@ -1543,6 +1575,18 @@
   renderAll();
   buildReportPicks();
   refreshReportSummary();
+
+  /* จุดเชื่อมให้ js/sync.js (ที่เก็บข้อมูลกลาง) */
+  window.BioApp = {
+    MODULES: MODULES,
+    getDB: function () { return DB; },
+    getTomb: function () { return TOMB; },
+    saveData: function () { return saveAll(DB); },
+    saveTomb: saveTomb,
+    render: function () { renderAll(); buildReportPicks(); refreshReportSummary(); },
+    toast: toast,
+    thDate: thDate
+  };
 
   /* ขอให้เบราว์เซอร์เก็บข้อมูลถาวร (Safari บน iPhone/iPad อาจลบข้อมูลเว็บที่ไม่ได้เปิดนานถ้าไม่ขอ) */
   try {

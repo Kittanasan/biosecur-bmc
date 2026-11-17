@@ -2,12 +2,14 @@
    กลยุทธ์ "เครือข่ายก่อน แคชสำรอง" — ออนไลน์อยู่ได้ไฟล์ล่าสุดเสมอ (ไม่ค้างเวอร์ชันเก่า)
    ส่วนตอนออฟไลน์/เน็ตหลุด จะใช้ไฟล์ที่เก็บไว้ล่าสุดแทน
    ข้อมูลที่ผู้ใช้บันทึกอยู่ใน localStorage ของเบราว์เซอร์ ไม่เกี่ยวกับแคชนี้ */
-var CACHE = "biosecurity-shell-v1";
+var CACHE = "biosecurity-shell-v2";
 var SHELL = [
   "./",
   "index.html",
   "js/app.js",
   "js/report.js",
+  "js/config.js",
+  "js/sync.js",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",
