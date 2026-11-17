@@ -5,5 +5,5 @@
    หมายเหตุ: ห้ามใส่รหัสทีมในไฟล์นี้ (ไฟล์นี้เป็นสาธารณะ) */
 window.BIO_CONFIG = {
   syncUrl: "https://script.google.com/macros/s/AKfycbx6ZKAyAVGhWMUlWenCyDB_v9nX5_uDW3VLiRzHL1Oa14DtIlO9hNwxjP5O2LjNn3wO/exec",
-  sheetUrl: ""
+  sheetUrl: "https://docs.google.com/spreadsheets/d/1-w_0wW8bBVnWa2Bko043Wfgc75sLGtEDR7VNczccBbg/edit?usp=sharing"
 };
